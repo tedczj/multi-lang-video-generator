@@ -1,0 +1,143 @@
+{
+  "date": "2026-09-11",
+  "local_links_checked": 96,
+  "historical_sandbox_links": 14,
+  "shell_blocks_syntax_checked": 7,
+  "requirements": [
+    "REQ-01",
+    "REQ-02",
+    "REQ-03",
+    "REQ-04",
+    "REQ-05",
+    "REQ-06"
+  ],
+  "nodes": [
+    "N01",
+    "N02",
+    "N03",
+    "N04",
+    "N05",
+    "N06",
+    "N07",
+    "N08",
+    "N09",
+    "N10",
+    "N11",
+    "N12",
+    "N13",
+    "N14",
+    "N15",
+    "N16",
+    "N17",
+    "N18",
+    "N19",
+    "N20"
+  ],
+  "tests": [
+    "T-AUDIO",
+    "T-BACKUP",
+    "T-CLEAN",
+    "T-CONTRACT",
+    "T-DB",
+    "T-DOWNLOAD",
+    "T-FAULT",
+    "T-LAYOUT",
+    "T-LINEAGE",
+    "T-LOCK",
+    "T-LOG",
+    "T-LONG",
+    "T-MEDIA",
+    "T-OCR",
+    "T-QA",
+    "T-RECOVER",
+    "T-RELEASE",
+    "T-RENDER",
+    "T-RETRY",
+    "T-SPEECH",
+    "T-STORE",
+    "T-STYLE",
+    "T-TIMELINE",
+    "T-TRANSLATE",
+    "T-TTS",
+    "T-UTTERANCE"
+  ],
+  "references": [
+    "REF-CLEAN",
+    "REF-CODEX",
+    "REF-CORE",
+    "REF-DOWNLOAD",
+    "REF-FONT",
+    "REF-MEDIA",
+    "REF-OCR",
+    "REF-QA",
+    "REF-SPEECH",
+    "REF-TIMELINE",
+    "REF-TTS"
+  ],
+  "source_repositories": 9,
+  "source_files": 14,
+  "historical_docs": [
+    {
+      "file": "DEVELOPMENT_DESIGN_V2_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "CODE_REFERENCES_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "REAL_TEST_MATRIX_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "TEST_REPORT_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "DATA_CONTRACTS_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "TEST_PLAN_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "UPSTREAM_REFERENCES_ZH.md",
+      "original_body_preserved": true
+    },
+    {
+      "file": "TEST_RESULTS_ZH.md",
+      "original_body_preserved": true
+    }
+  ],
+  "errors": [],
+  "node_coverage_in_kickoffs": [
+    "N01",
+    "N02",
+    "N03",
+    "N04",
+    "N05",
+    "N06",
+    "N07",
+    "N08",
+    "N09",
+    "N10",
+    "N11",
+    "N12",
+    "N13",
+    "N14",
+    "N15",
+    "N16",
+    "N17",
+    "N18",
+    "N19",
+    "N20"
+  ],
+  "archive_sha256": {
+    "bilingual_video_research_and_prototype.zip": "463c03775e15d0ce8e9127f4ec6679c57c045333f044a51c7252c8feaeb1792e",
+    "bivideo_design_and_reference_v2.zip": "d004ef554d1132acbf6ce6b9eac13fa7c4a0f99447443eea4bfd8fd6387ce0c8",
+    "video_interleave_v2_design_and_skeleton.zip": "2ee0afb4297d2d2a2136238d387f4e21b88c34e7d8ad506657ce3abc297e9e0d"
+  },
+  "status": "PASS",
+  "scope": "Documentation only; no application tests or inference executed"
+}
