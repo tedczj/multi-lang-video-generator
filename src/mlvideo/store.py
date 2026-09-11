@@ -34,6 +34,8 @@ def ingest(engine, source, download=False):
                 sys.executable,
                 "-m",
                 "yt_dlp",
+                "--js-runtimes",
+                "node",
                 "--no-playlist",
                 "--no-cache-dir",
                 "--force-overwrites",
@@ -62,6 +64,7 @@ def ingest(engine, source, download=False):
         else:
             snapshot = raw / "media.bin"
             durable_copy(Path(source).resolve(), snapshot)
+        probe_work = raw / "probe"
         run_worker(
             [
                 sys.executable,
@@ -70,14 +73,14 @@ def ingest(engine, source, download=False):
                 "--probe",
                 str(snapshot),
                 "--work",
-                str(raw),
+                str(probe_work),
             ],
-            raw,
+            probe_work,
             engine.config.get("worker_timeout", 600),
         )
         from .util import read_json
 
-        info = read_json(raw / "probe.json")
+        info = read_json(probe_work / "probe.json")
         if download and any(
             s.get("height", 0) > 1080
             for s in info["streams"]
@@ -148,6 +151,7 @@ def recover_acquisition(engine, identity):
     incoming = engine.root / "incoming" / identity
     request = read_json(incoming / "request.json")
     confirm_stopped(incoming / "runtime.json")
+    confirm_stopped(incoming / "raw" / "runtime.json")
     row = engine.db.one("SELECT * FROM acquisitions WHERE id=%s", (identity,))
     if not row:
         engine.db.insert(

@@ -25,6 +25,7 @@ def doctor(config):
     for name, argv in {
         "ffmpeg": ["ffmpeg", "-version"],
         "ffprobe": ["ffprobe", "-version"],
+        "node": ["node", "--version"],
         "docker": ["docker", "version", "--format", "{{json .}}"],
         "yt-dlp": [sys.executable, "-m", "yt_dlp", "--version"],
     }.items():

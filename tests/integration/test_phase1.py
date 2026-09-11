@@ -944,6 +944,12 @@ def test_downloader_real_http(setup):
         url = f"http://127.0.0.1:{server.server_port}/rotate.mp4"
         first = cli("download", url)
         second = cli("download", url)
+        for result in (first, second):
+            directory = e.root / "incoming" / result["acquisition_id"]
+            assert "[download]" in (directory / "raw/stdout.log").read_text()
+            assert read_json(directory / "runtime.json")["argv"][2] == "yt_dlp"
+            assert read_json(directory / "raw/runtime.json")["stopped"]
+
         assert first["acquisition_id"] != second["acquisition_id"]
         assert (
             first["asset_sha512"]

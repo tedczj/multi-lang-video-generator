@@ -246,6 +246,9 @@ def main():
     }
     if url and authorization:
         download["authorization"] = authorization
+        download["reason"] = (
+            "YouTube download failed; see attempt output and acquisition stderr logs"
+        )
         for i in range(2):
             argv = (
                 [sys.executable, "-m", "mlvideo.cli"]

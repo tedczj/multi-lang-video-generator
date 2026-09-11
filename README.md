@@ -4,7 +4,7 @@ Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水�
 
 ## 本地启动
 
-需要 Python 3.11+、Docker Desktop、FFmpeg/ffprobe（FFV1、libx264、AAC）。使用项目虚拟环境：
+需要 Python 3.11+、Node.js 22+（YouTube JavaScript 解析）、Docker Desktop、FFmpeg/ffprobe（FFV1、libx264、AAC）。使用项目虚拟环境：
 
 ```bash
 python3.11 -m venv .venv
@@ -58,3 +58,5 @@ docker compose up -d mysql
 素材为本项目程序生成；`make_fixtures.py` 记录本机 FFmpeg 实际生成字节的 SHA-512 和独立预期摘要，重新生成后须重新验收。验收产物和媒体保留在本地 evidence 目录，不将旧证据当成新一轮结果。
 
 范围、结果与限制见 [第一期实现报告](docs/verification/PHASE_1_IMPLEMENTATION_ZH.md)。后续规划见 [文档导航](docs/README_ZH.md)。
+
+YouTube 下载使用锁定版本的 yt-dlp/EJS 和 Node。若 Python.org 安装的 Python 缺少 CA，首次 setup 会使用存在的系统 `/etc/ssl/cert.pem`；已有环境可在本地 `.env` 设置 `SSL_CERT_FILE=/etc/ssl/cert.pem`，证书校验保持启用。空数据卷初始化实测：`.venv/bin/python scripts/measure_cold_start.py --out evidence/mysql_cold_NEW`，脚本使用独立临时容器/卷，结束后清理这两个临时资源。

@@ -2,7 +2,7 @@
 
 更新：2026-09-11。当前设计以 [plan_0.md](plan_0.md) 为基线：**单 Mac 主控、单实例轻量 MySQL、串行执行、独立模型 worker**。
 
-第一期基础设施和媒体执行已落地，安装与运行见 [项目 README](../README.md)。真实 MySQL、重试恢复、媒体、故障和备份自测已有新证据；授权 YouTube 下载验收未完成，不能宣布全期 PASS。详见 [第一期实现报告](verification/PHASE_1_IMPLEMENTATION_ZH.md)。第二、三期仍为设计。
+第一期基础设施和媒体执行已落地，安装与运行见 [项目 README](../README.md)。真实 MySQL、重试恢复、媒体、故障、备份、YouTube 下载及空卷初始化均已有新证据，第一期已 PASS。详见 [第一期最终验收](verification/PHASE_1_ACCEPTANCE_ZH.md)。第二、三期仍为设计。
 
 ## 当前开发入口
 

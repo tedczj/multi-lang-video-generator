@@ -1,0 +1,35 @@
+{
+  "url": "https://www.youtube.com/watch?v=Ye33eY4UNtY",
+  "downloads": [
+    {
+      "acquisition_id": "acq_655af66cd2ba46acabf2fea6e4683525",
+      "asset_sha512": "123a5364b3429aaaf8661e6d4f58c13676f27b884c2611f6da84a6ad77f83226b6414c959d02ecaa82e0524bf2a722c94ccd60a2e43f71233ea1f36623be91c5",
+      "execution_id": "exec_c24df21a51b74c17821fcdc943e3bab5",
+      "source_artifact_id": "art_f6022cd2eb784bd7a3718f6907095341",
+      "pid": 69384,
+      "started_at": "2026-09-11T16:18:24.345948+00:00",
+      "finished_at": "2026-09-11T16:18:33.138170+00:00",
+      "bytes": 69543774,
+      "duration_seconds": 903,
+      "title": "Rocket Girl Fights a Hypnotic Villain | The Story of An Eight-Year-Old Superhero | Little Fox",
+      "height": 1080,
+      "stream_hashes": "0,v,SHA512=db51f6ce4623b0304db2893d80d7c97ecf1b6d06f1592555725aa62d415163452ba189667109b4b6b859946785796f56a7a4dc25a191cf73b8930c637aebab65\n1,a,SHA512=3210d4b7b9eb3f5e72796c6625e18e5cbf4ca3c57b557334bb59515b0d2e307ad803481df6ec77690f1a62dcf1ce5a9489a1a1c9c1abd7a36ca127c3bd616e5d\n"
+    },
+    {
+      "acquisition_id": "acq_5ba524ff9a744c30bcceec5f8c3a1999",
+      "asset_sha512": "f9fbe5c8836ed39f013ad8b945c06280998425fd5c985b41f7acced34e8670c4d6849669cf9b731c3d13e57154982daf5ec6ea0e3b397e2f0a6f95fd5bee8bd5",
+      "execution_id": "exec_89bb1e0b20b9437fabb012cb274e5ef4",
+      "source_artifact_id": "art_bd095bfd8ef24144810b484fc362ac9f",
+      "pid": 69428,
+      "started_at": "2026-09-11T16:18:43.701413+00:00",
+      "finished_at": "2026-09-11T16:18:57.084973+00:00",
+      "bytes": 69543774,
+      "duration_seconds": 903,
+      "title": "Rocket Girl Fights a Hypnotic Villain | The Story of An Eight-Year-Old Superhero | Little Fox",
+      "height": 1080,
+      "stream_hashes": "0,v,SHA512=db51f6ce4623b0304db2893d80d7c97ecf1b6d06f1592555725aa62d415163452ba189667109b4b6b859946785796f56a7a4dc25a191cf73b8930c637aebab65\n1,a,SHA512=3210d4b7b9eb3f5e72796c6625e18e5cbf4ca3c57b557334bb59515b0d2e307ad803481df6ec77690f1a62dcf1ce5a9489a1a1c9c1abd7a36ca127c3bd616e5d\n"
+    }
+  ],
+  "encoded_audio_video_packets_equal": true,
+  "source_containers_equal": false
+}

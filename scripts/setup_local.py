@@ -1,6 +1,7 @@
 """Create local-only credentials once; never print their values."""
 
 import os
+import ssl
 import secrets
 from pathlib import Path
 
@@ -9,6 +10,12 @@ with path.open("x") as f:
     os.chmod(path, 0o600)
     for key in ("DB", "MIGRATION", "ROOT"):
         f.write(f"MLVIDEO_{key}_PASSWORD={secrets.token_hex(24)}\n")
+if (
+    ssl.get_default_verify_paths().cafile is None
+    and Path("/etc/ssl/cert.pem").is_file()
+):
+    with path.open("a") as f:
+        f.write("SSL_CERT_FILE=/etc/ssl/cert.pem\n")
 values = dict(line.split("=", 1) for line in path.read_text().splitlines())
 sql = Path("config/local-init.sql")
 sql.write_text(
