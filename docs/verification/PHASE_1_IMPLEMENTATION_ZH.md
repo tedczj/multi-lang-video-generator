@@ -48,7 +48,7 @@ pytest 返回 0；阶段入口返回 1，正确保留下载未完成状态。机
 
 资源详表见 [resources.json](phase1_run_004/resources.json) 和 [连续任务容器采样](phase1_run_004/container-samples.jsonl)。冷启动采样指保留数据卷的 MySQL 进程重启，不是空卷初始化峰值；RSS 合计包含其他容器及共享映射，不能归因给本项目。所有采样容器 OOMKilled=false，768 MiB 预算下运行成功。测试进程逐 PID 的采样峰值也已记录，不将离散采样宣称为精确连续峰值。
 
-执行时尚未提交新文件，故代码身份如实记录 base commit 和 dirty=true；[code.json](phase1_run_004/code.json) 保存全部 46 项实际源码/配置/测试文件及 SHA-512，并附本地源码 ZIP 的摘要。本报告生成时逐项核对当前文件与该快照一致。源码树 SHA-512：
+执行时尚未提交新文件，故代码身份如实记录 base commit 和 dirty=true；[code.json](phase1_run_004/code.json) 保存全部 46 项实际部署文件（包含 editable 安装元数据）及 SHA-512，并附本地源码 ZIP 的摘要。本报告生成时逐项核对当前文件与该快照一致。提交后另核对了 41 项 Git 文件与实现提交 `ce56eaf` 完全一致；5 项生成的 egg-info 元数据保留在快照中、不进入 Git，详见 [提交核对](phase1_run_004/commit-verification.json)。源码树 SHA-512：
 
 `b2f28143645f866e20c234d422de96d2d9923bf2fc3486a9b7c65518aee697ef18f5da881dec1ba3ce8b46ee20ce9faab2c7dc667fbb1b91e9af00c5545aabee`
 

@@ -1,0 +1,28 @@
+{
+  "implementation_commit": "ce56eaf0ff62701d33f7c0ad9cdbce7177049bc0",
+  "evidence": "phase1_run_004",
+  "git_files_verified": 41,
+  "editable_metadata_in_snapshot": [
+    {
+      "path": "src/mlvideo.egg-info/PKG-INFO",
+      "sha512": "d691af08fa7c41c46433e93299ceecb9ed4eefac6b646e726bce2679b71b31943c23b5905eba0adda40009b25addeb72289000005057fea75d29a73bb57b7417"
+    },
+    {
+      "path": "src/mlvideo.egg-info/SOURCES.txt",
+      "sha512": "0b0ccb4ee683679f532ee0967b6dadc93fd367c74bad81db6da997cb309e3a6ae4b7a1708ced307ca51054b37edf0f44033e62479731ce3b48489b190393f7b6"
+    },
+    {
+      "path": "src/mlvideo.egg-info/dependency_links.txt",
+      "sha512": "be688838ca8686e5c90689bf2ab585cef1137c999b48c70b92f67a5c34dc15697b5d11c982ed6d71be1e1e7f7b4e0733884aa97c3f7a339a8ed03577cf74be09"
+    },
+    {
+      "path": "src/mlvideo.egg-info/requires.txt",
+      "sha512": "350943931007ad543aed4e6db9059dc35d6f9e9559ae864403bca59520c3f5e743994a432d03ce584c7da209802a07127a351c4872470e22298192e6b8727565"
+    },
+    {
+      "path": "src/mlvideo.egg-info/top_level.txt",
+      "sha512": "64b9686ffe4533676c493e4ff0875f7566442a38d670efdf73e0462bb0468ac02f4ef9a160745250d9dd6fdaa0173f92c694149b529f32fb30ba1095a3c5a574"
+    }
+  ],
+  "status": "MATCH"
+}
