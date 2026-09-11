@@ -2,6 +2,8 @@
 
 Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水线。第一期实现媒体执行，不包含真实翻译、克隆语音或字幕制作；提示音演示的业务 QA 始终为 REVIEW。
 
+第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二、三期尚未开发。
+
 ## 本地启动
 
 需要 Python 3.11+、Node.js 22+（YouTube JavaScript 解析）、Docker Desktop、FFmpeg/ffprobe（FFV1、libx264、AAC）。使用项目虚拟环境：

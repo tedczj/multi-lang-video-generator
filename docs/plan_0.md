@@ -1,5 +1,7 @@
 # 轻量 MySQL、串行执行的视频流水线设计
 
+> 当前状态（2026-09-12）：第一期已验收 PASS，见 [最终验收报告](verification/PHASE_1_ACCEPTANCE_ZH.md)；第二、三期仍待开发。下文保留原始设计大纲和历史文档交付说明。
+
 > 2026-09-11：本大纲对应的 [完整开发计划](DEVELOPMENT_PLAN_ZH.md) 及 [第一期](kickoffs/PHASE_1_KICKOFF_ZH.md)、[第二期](kickoffs/PHASE_2_KICKOFF_ZH.md)、[第三期 kickoff](kickoffs/PHASE_3_KICKOFF_ZH.md) 已补齐。以下保留原始大纲；文档交付不代表功能已实现。
 
   ## 1. 设计基线与文档交付

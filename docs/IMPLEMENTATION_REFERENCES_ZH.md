@@ -4,6 +4,8 @@
 
 历史来源说明见 [UPSTREAM_REFERENCES_ZH.md](UPSTREAM_REFERENCES_ZH.md)；其中 SQLite、并发与旧执行状态只适用于参考包。新方案以 MySQL 和单主控串行为准。
 
+当前实施状态（2026-09-12）：第一期已验收 PASS，实际部署身份见 `config/upstreams.lock.json`，运行证据见 [最终验收报告](verification/PHASE_1_ACCEPTANCE_ZH.md)。以下源码阅读身份保留为 2026-09-11 的参考记录；第二、三期模型适配仍待开发。
+
 ## 1. 本次源码阅读身份
 
 以下文件本次按完整 commit 下载并核对符号，逐文件 SHA-512 与可定位 URL 保存在 [upstream-source-checks.json](verification/upstream-source-checks.json)。前三个历史 pin 重新取回；其他为本次解析的阅读 commit。没有安装这些模型或执行其推理。
@@ -108,4 +110,4 @@
 
 ## 3. 数据库配置依据
 
-MySQL/PyMySQL 官方依据集中在 [主计划 §3](DEVELOPMENT_PLAN_ZH.md#3-mysql文件与索引)。SQL、MySQL 镜像和 MySQL 实际恢复路径均需新开发和验证；历史包不能提供这部分已实现的证明。
+MySQL/PyMySQL 官方依据集中在 [主计划 §3](DEVELOPMENT_PLAN_ZH.md#3-mysql文件与索引)。SQL、锁定的 MySQL 镜像及实际恢复路径已在第一期完成实现与验证，证据见 [最终验收报告](verification/PHASE_1_ACCEPTANCE_ZH.md)；历史包的结果不计入这部分验收。
