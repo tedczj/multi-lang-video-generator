@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.4.11@sha256:3466ba4a4828aa8d46fb7c3bc16b67b781c98413cf4ea0fac6feaa6e881faa26
+    ports:
+      - "127.0.0.1:3307:3306"
+    mem_limit: 768m
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MLVIDEO_ROOT_PASSWORD:?Run scripts/setup_local.py first}
+      MYSQL_DATABASE: mlvideo
+      MYSQL_USER: mlvideo
+      MYSQL_PASSWORD: ${MLVIDEO_DB_PASSWORD:?Run scripts/setup_local.py first}
+      MLVIDEO_MIGRATION_PASSWORD: ${MLVIDEO_MIGRATION_PASSWORD:?Run scripts/setup_local.py first}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./config/mysql.cnf:/etc/mysql/conf.d/mlvideo.cnf:ro
+      - ./config/local-init.sql:/docker-entrypoint-initdb.d/10-accounts.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysql -uroot -e 'SELECT 1' >/dev/null"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+volumes:
+  mysql-data:

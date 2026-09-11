@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "case_id": "cfr",
+      "path": "tests/fixtures/generated/cfr.mkv",
+      "sha512": "9d21748750e31f06c49ae929220239dc244adf396b343c61697ed6dba50c0a39fba392a193c4c78ccb0d9eb485cad694a6034c326061d54454e46a273653b95c",
+      "authorization": "Original programmatically generated fixture; project testing authorized",
+      "media": {
+        "fps": "25",
+        "frames": 125,
+        "sample_rate": 48000,
+        "channels": 2
+      },
+      "expected_path": "tests/fixtures/generated/cfr.expected.json",
+      "expected_sha512": "9ddb09f0089bc67b661bea27295a374418f40ac4e57e6a3d47105aac37af26ffba22bdac731de37b12933e7f1ff7a866fa8530e7d59c0f0f62f3f433666ffad1"
+    },
+    {
+      "case_id": "ntsc",
+      "path": "tests/fixtures/generated/ntsc.mkv",
+      "sha512": "7ace213d0f2b2ff7f636acb59d02ea504a69585d626bbd34ef8a451a473c59e117b409fa0ad56d7ed253de646bcbd4d9291a6b00d644399e50243e92591e3e6f",
+      "authorization": "Original programmatically generated fixture; project testing authorized",
+      "media": {
+        "fps": "30000/1001",
+        "frames": 150,
+        "sample_rate": 48000,
+        "channels": 2
+      },
+      "expected_path": "tests/fixtures/generated/ntsc.expected.json",
+      "expected_sha512": "7da124fadd623107ac219081abc1acb2294c2b4d58339c81b36a95323f83345a1d3e9495ba2460b229b87ba30d6cf467a8218c21910c486c95375146c045ba26"
+    },
+    {
+      "case_id": "vfr",
+      "path": "tests/fixtures/generated/vfr.mkv",
+      "sha512": "cc7c195f49a877acb4ab2e94a34b462248aec2b31c3d0b7c60576c5e304203ad57384ce9faba5bbca0a49928e183e9958ea5bbd435914d2abc74b821b12838f8",
+      "authorization": "Original generated fixture",
+      "media": {
+        "variant": "vfr"
+      },
+      "expected_path": "tests/fixtures/generated/vfr.expected.json",
+      "expected_sha512": "b919a251086e5d159536bff9332ad44b1847320aadc8b6a8088f10861c75aa895670455f68a7eba056074bdfd498059fc20fa808d9664b769d4d6eb5dcb45d75"
+    },
+    {
+      "case_id": "offset",
+      "path": "tests/fixtures/generated/offset.mkv",
+      "sha512": "db19ddb6ec139afb720d9a437690dfa3f07a0dc32c760b1858aea1ba32387f0220e3f2b2ec7abcbe89d9ee41cc905a1397770ad067ed7778457764f201bf9414",
+      "authorization": "Original generated fixture",
+      "media": {
+        "variant": "offset"
+      },
+      "expected_path": "tests/fixtures/generated/offset.expected.json",
+      "expected_sha512": "b4cd59ae0ec5229efa8564b8004dc881120934df2a55a02a6fb06c31348ce3fd9e00f62fe565ef96f9c22622b035f9be2c9870eeeec20f698af573476a79e7b9"
+    },
+    {
+      "case_id": "rotate",
+      "path": "tests/fixtures/generated/rotate.mp4",
+      "sha512": "88ce1f2cb18e016f8f0f0058a72038f1067f7791c6679d487b65b7d6cc7322da9e113bf00fd1b222f94b7b6574d27cd820807925b713d6d637dae76578a88312",
+      "authorization": "Original generated fixture",
+      "media": {
+        "variant": "rotate"
+      },
+      "expected_path": "tests/fixtures/generated/rotate.expected.json",
+      "expected_sha512": "2758bde54840a899fa9218691ee3af552507f2dd24e57b49394d9d71084ffc532bbfb947e131b2d134faf378a43cd6a66a33ff25e7469c890aa3df7c5475be4a"
+    },
+    {
+      "case_id": "hdr",
+      "path": "tests/fixtures/generated/hdr.mkv",
+      "sha512": "6b74cc1c4d7fa33a19cab0173d8a132e6deea8e52264dcb12c9c1adf2f3a2bbfcb7b94929708cf0bca632657c49997f68d4e08ab1c33e944d068d266b2cec091",
+      "authorization": "Original generated fixture",
+      "media": {
+        "variant": "hdr"
+      },
+      "expected_path": "tests/fixtures/generated/hdr.expected.json",
+      "expected_sha512": "a785f56751998c4537150c77bffff3fafeec4f4a864e01096d5f1df2043ecbe33a50b434fe52b2a81ac4f1190233ccdb53a54f27ec2ac311620bb00bd3f2b1e9"
+    }
+  ],
+  "youtube_url": null,
+  "youtube_authorization": null
+}

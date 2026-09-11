@@ -1,0 +1,8 @@
+{
+  "steps": [
+    {"id":"probe", "node":"N03", "strategy":"ffprobe", "inputs":{"source":"SOURCE_ARTIFACT_ID"}},
+    {"id":"canonical", "node":"N04", "strategy":"ffmpeg", "inputs":{"source":"SOURCE_ARTIFACT_ID", "probe":{"step":"probe","port":"probe"}}},
+    {"id":"timeline", "node":"N16", "strategy":"gap_first", "inputs":{"canonical":{"step":"canonical","port":"canonical"}}, "params":{"utterances":[{"id":"u1","start_sample":0,"end_sample":192000,"safe_cut_frame":125,"dub_samples":24000,"tone_hz":660}]}},
+    {"id":"render", "node":"N18", "strategy":"ffmpeg", "inputs":{"video":{"step":"canonical","port":"video"}, "audio":{"step":"canonical","port":"audio"}, "timeline":{"step":"timeline","port":"timeline"}}}
+  ]
+}

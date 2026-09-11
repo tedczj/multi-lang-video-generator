@@ -1,0 +1,8 @@
+{
+  "mysql": {
+    "image": "mysql:8.4.11@sha256:3466ba4a4828aa8d46fb7c3bc16b67b781c98413cf4ea0fac6feaa6e881faa26",
+    "image_id": "sha256:8e23c72f7944cba784a20119d71ebd566a81ffbd0db685da70db2bd1ed9f04a2",
+    "platform": "linux/arm64"
+  },
+  "ffmpeg": "ffmpeg version 7.1.1 Copyright (c) 2000-2025 the FFmpeg developers"
+}

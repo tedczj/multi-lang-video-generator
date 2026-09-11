@@ -1,12 +1,12 @@
 # 第一期 kickoff：基础设施与媒体执行
 
-状态：待开发。基线：[完整开发计划](../DEVELOPMENT_PLAN_ZH.md)，需求 REQ-01、REQ-03–06 及 REQ-02 的媒体子链。所有项目命令、配置和测试入口须在本期实现后才能运行。
+状态：已实施，授权 YouTube 下载验收未完成；阶段整体 INCOMPLETE。详见 [实现报告](../verification/PHASE_1_IMPLEMENTATION_ZH.md)。基线：[完整开发计划](../DEVELOPMENT_PLAN_ZH.md)，需求 REQ-01、REQ-03–06 及 REQ-02 的媒体子链。项目命令、配置和测试入口已可按 [根 README](../../README.md) 安装运行。
 
 ## 1. 目标与前置条件
 
 交付一个使用真实 MySQL 的串行执行内核，证明导入、版本血缘、真实重试、恢复和空档优先音画处理可以实际运行。本期用已知文字/语句时间和提示音隔离媒体算法；不把演示当作真实翻译成品。
 
-前置环境：Mac、Python 3.11+、Docker Desktop、支持 FFV1/libx264/AAC 的 FFmpeg/ffprobe、可访问的授权下载样本。先记录环境版本和可用磁盘；Python 命令必须来自满足版本要求的环境。现有根目录尚无项目安装文件，不能直接执行旧 README 的安装命令。
+前置环境：Mac、Python 3.11+、Docker Desktop、支持 FFV1/libx264/AAC 的 FFmpeg/ffprobe、可访问的授权下载样本。先记录环境版本和可用磁盘；Python 命令必须来自满足版本要求的环境。根目录已有项目安装文件；使用 `.venv/bin/python`，避免系统默认 Python 3.10。
 
 阅读：[主计划 §3–5](../DEVELOPMENT_PLAN_ZH.md#3-mysql文件与索引)、[时间线 §8](../DEVELOPMENT_PLAN_ZH.md#8-空档优先时间线与音画)、[实现参考](../IMPLEMENTATION_REFERENCES_ZH.md)。优先参考 REF-CORE、REF-DOWNLOAD、REF-MEDIA、REF-TIMELINE。
 
@@ -55,7 +55,7 @@
 - 已标注讲话区间与安全切点的模拟输入，以及交叠/无安全整帧边界的拒绝样本。
 - 同 bytes 不同名字、被篡改输入，以及同一授权 YouTube URL 的两次真实下载。
 
-未来在项目根目录运行；目录名每次新建，禁止复用旧证据：
+在项目根目录完成安装和素材生成后运行；目录名每次新建，禁止复用旧证据：
 
 ```bash
 docker compose config --quiet

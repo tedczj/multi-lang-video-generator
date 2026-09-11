@@ -1,0 +1,7 @@
+{
+  "data_root": "data",
+  "database": {"host": "127.0.0.1", "port": 3307, "database": "mlvideo", "user": "mlvideo", "password_env": "MLVIDEO_DB_PASSWORD"},
+  "migration_user": "mlvideo_migrate",
+  "migration_password_env": "MLVIDEO_MIGRATION_PASSWORD",
+  "worker_timeout": 600
+}

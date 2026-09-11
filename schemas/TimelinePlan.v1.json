@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fps": {
+      "type": "string"
+    },
+    "sample_rate": {
+      "const": 48000
+    },
+    "source_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "output_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "output_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "pieces": {
+      "type": "array"
+    },
+    "dubs": {
+      "type": "array"
+    },
+    "utterances": {
+      "type": "array"
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    }
+  },
+  "required": [
+    "fps",
+    "sample_rate",
+    "source_frames",
+    "output_frames",
+    "source_samples",
+    "output_samples",
+    "pieces",
+    "dubs",
+    "utterances",
+    "quality_status"
+  ],
+  "additionalProperties": false
+}

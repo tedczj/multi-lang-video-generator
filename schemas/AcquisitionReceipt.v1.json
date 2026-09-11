@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "acquisition_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "local",
+        "download"
+      ]
+    },
+    "state": {
+      "type": "string"
+    },
+    "asset_sha512": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "finished_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "acquisition_id",
+    "kind",
+    "state",
+    "asset_sha512",
+    "source",
+    "started_at",
+    "finished_at"
+  ],
+  "additionalProperties": true
+}

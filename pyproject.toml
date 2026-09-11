@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlvideo"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["PyMySQL[rsa]>=1.1", "jsonschema>=4.23", "psutil>=6", "yt-dlp>=2025.1"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "const": 1
+    },
+    "state": {
+      "const": "SUCCEEDED"
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "port": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "schema_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "port",
+          "path",
+          "schema_id",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "warnings": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "protocol_version",
+    "state",
+    "artifacts",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

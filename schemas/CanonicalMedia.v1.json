@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fps": {
+      "type": "string"
+    },
+    "sample_rate": {
+      "const": 48000
+    },
+    "channels": {
+      "const": 2
+    },
+    "source_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_pts": {
+      "type": "array"
+    },
+    "frame_mapping": {
+      "type": "array"
+    },
+    "audio_offset_seconds": {
+      "type": "string"
+    },
+    "rotation": {
+      "type": "number"
+    },
+    "warnings": {
+      "type": "array"
+    },
+    "video_lead_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "video_tail_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "audio_start_sample": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "audio_payload_samples": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "fps",
+    "sample_rate",
+    "channels",
+    "source_frames",
+    "source_samples",
+    "source_pts",
+    "frame_mapping",
+    "audio_offset_seconds",
+    "rotation",
+    "warnings",
+    "video_lead_frames",
+    "video_tail_frames",
+    "audio_start_sample",
+    "audio_payload_samples"
+  ],
+  "additionalProperties": false
+}

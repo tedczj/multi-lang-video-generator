@@ -2,7 +2,7 @@
 
 更新：2026-09-11。当前设计以 [plan_0.md](plan_0.md) 为基线：**单 Mac 主控、单实例轻量 MySQL、串行执行、独立模型 worker**。
 
-当前目录处于设计阶段，包含文档、参考源码压缩包和样片；没有已展开的正式项目、Compose、SQL 迁移或新方案测试。下面“开发计划 / kickoff”中的项目命令均为待实现接口，不能在当前根目录直接运行。
+第一期基础设施和媒体执行已落地，安装与运行见 [项目 README](../README.md)。真实 MySQL、重试恢复、媒体、故障和备份自测已有新证据；授权 YouTube 下载验收未完成，不能宣布全期 PASS。详见 [第一期实现报告](verification/PHASE_1_IMPLEMENTATION_ZH.md)。第二、三期仍为设计。
 
 ## 当前开发入口
 
@@ -31,7 +31,7 @@
 | Bivideo 骨架 | [bivideo_design_and_reference_v2.zip](../sources/bivideo_design_and_reference_v2.zip)，根 `video_pipeline_v2/` | 包内 `src/bivideo/`；旧运行说明在包内 README |
 | VidFlow 骨架 | [video_interleave_v2_design_and_skeleton.zip](../sources/video_interleave_v2_design_and_skeleton.zip)，根 `video_interleave_v2/` | 包内 `vidflow/`；参考执行/血缘/媒体算法，不照搬数据库和并发设计 |
 
-`bivideo`、`vidflow` 和拟建 `mlvideo` 的 CLI 与存储结构不同，不能交叉使用命令、测试数字或结果目录。
+`bivideo`、`vidflow` 和当前 `mlvideo` 的 CLI 与存储结构不同，不能交叉使用命令、测试数字或结果目录。
 
 ## 查看或运行历史参考包
 

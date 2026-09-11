@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "start_sample": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "end_sample": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "safe_cut_frame": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dub_samples": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "tone_hz": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 20000
+    }
+  },
+  "required": [
+    "id",
+    "start_sample",
+    "end_sample",
+    "safe_cut_frame",
+    "dub_samples"
+  ],
+  "additionalProperties": false
+}

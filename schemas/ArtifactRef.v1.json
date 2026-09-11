@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "artifact_id": {
+      "type": "string"
+    },
+    "asset_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "execution_id": {
+      "type": "string"
+    },
+    "relative_path": {
+      "type": "string"
+    },
+    "schema_id": {
+      "type": "string"
+    },
+    "sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "asset_sha512",
+    "execution_id",
+    "relative_path",
+    "schema_id",
+    "sha512",
+    "bytes",
+    "path"
+  ],
+  "additionalProperties": false
+}
