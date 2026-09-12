@@ -2,9 +2,19 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "id": {
+    "speaker_id": {
+      "type": "string"
+    },
+    "text": {
       "type": "string",
       "minLength": 1
+    },
+    "audio_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "source_audio_artifact_id": {
+      "type": "string"
     },
     "start_sample": {
       "type": "integer",
@@ -12,32 +22,21 @@
     },
     "end_sample": {
       "type": "integer",
-      "minimum": 0
-    },
-    "safe_cut_frame": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "dub_samples": {
-      "type": "integer",
       "minimum": 1
     },
-    "tone_hz": {
-      "type": "number",
-      "exclusiveMinimum": 0,
-      "maximum": 20000
-    },
-    "visual_cut_limit_frame": {
+    "sample_rate": {
       "type": "integer",
       "minimum": 1
     }
   },
   "required": [
-    "id",
+    "speaker_id",
+    "text",
+    "audio_sha512",
+    "source_audio_artifact_id",
     "start_sample",
     "end_sample",
-    "safe_cut_frame",
-    "dub_samples"
+    "sample_rate"
   ],
   "additionalProperties": false
 }

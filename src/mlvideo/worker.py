@@ -1,5 +1,6 @@
 import argparse
 import shutil
+import subprocess
 import time
 import uuid
 from pathlib import Path
@@ -30,7 +31,86 @@ def main():
         )
 
     node = r["node"]
-    if node == "N02":
+    if node in {"N05", "N06", "N07", "N08", "N09", "N10", "N17", "N19"} or r[
+        "strategy_id"
+    ] in {"dub_gap_first", "dub_ffmpeg", "excerpt", "audio_source"}:
+        from .phase2 import run
+
+        for values in r["inputs"].values():
+            for ref in values:
+                from .util import sha512
+
+                if sha512(ref["path"]) != ref["sha512"]:
+                    raise ValueError("Input hash changed")
+        result_artifacts = run(r, work, output)
+        if result_artifacts is not None:
+            artifacts = result_artifacts
+    elif node == "N11":
+        from .config import ROOT
+
+        if len(r["models"]) != 1:
+            raise ValueError("Configure the CosyVoice3 model deployment first")
+        validate("TranslationSet.v1", read_json(source("translation")))
+        validate(
+            r["inputs"]["reference"][0]["schema_id"], read_json(source("reference"))
+        )
+        subprocess.run(
+            [
+                r["models"][0]["python"],
+                str(ROOT / "workers/cosyvoice_worker.py"),
+                "--request",
+                args.request,
+                "--result",
+                args.result,
+            ],
+            check=True,
+        )
+        return
+    elif node == "N12":
+        from .audio_qa import normalize_and_check
+
+        clip = read_json(source("clip"))
+        validate("RawDubClip.v1", clip)
+        report, frames, audio_hash = normalize_and_check(
+            source("audio"), clip, work, p["leading_review_seconds"]
+        )
+        atomic_json(
+            work / "clip.json",
+            {
+                "unit_id": clip["unit_id"],
+                "speaker_id": clip["speaker_id"],
+                "raw_clip_artifact_id": r["inputs"]["clip"][0]["artifact_id"],
+                "raw_audio_artifact_id": r["inputs"]["audio"][0]["artifact_id"],
+                "audio_sha512": audio_hash,
+                "sample_rate": 48000,
+                "channels": 2,
+                "frames": frames,
+                "quality_status": report["overall"],
+                "trimmed_samples": 0,
+            },
+        )
+        output("audio", "normalized.wav", "Audio.v1", "dub_audio")
+        output("clip", "clip.json", "DubClip.v1", "dub_clip")
+        output("qa", "qa.json", "AudioQA.v1", "qa_report")
+        if r["strategy_id"] == "audio_qa_asr":
+            from .config import ROOT
+
+            if len(r["models"]) != 1:
+                raise ValueError("Configure N12/audio_qa_asr deployment")
+            subprocess.run(
+                [
+                    r["models"][0]["python"],
+                    str(ROOT / "workers/audio_content_worker.py"),
+                    "--request",
+                    args.request,
+                    "--result",
+                    str(work / "content.json"),
+                ],
+                check=True,
+            )
+            output("asr", "content.json", "Binary.v1", "audio_content_assessment")
+
+    elif node == "N02":
         shutil.copyfile(p["source_path"], work / "source.bin")
         shutil.copyfile(p["receipt_path"], work / "receipt.json")
         output("source", "source.bin", "Binary.v1", "source")

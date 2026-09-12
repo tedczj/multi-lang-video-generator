@@ -1,0 +1,82 @@
+version: '3.8'
+services:
+  # 原有GPU0 8080接口服务（保留不变）
+  paddleocr-vl-api:
+    image: ccr-2vdh3abv-pub.cnc.bj.baidubce.com/paddlepaddle/paddleocr-vl:${API_IMAGE_TAG_SUFFIX}
+    container_name: paddleocr-vl-api-v2
+    ports:
+      - 58080:8080
+    depends_on:
+      paddleocr-vlm-server:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    shm_size: 8g
+    user: root
+    restart: unless-stopped
+    environment:
+      - VLM_BACKEND=${VLM_BACKEND:-vllm}
+    command: /bin/bash -c "paddlex --serve --pipeline /home/paddleocr/pipeline_config_${VLM_BACKEND}.yaml"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # 新增GPU1 8081独立API服务
+  paddleocr-vl-api-gpu1:
+    image: ccr-2vdh3abv-pub.cnc.bj.baidubce.com/paddlepaddle/paddleocr-vl:${API_IMAGE_TAG_SUFFIX}
+    container_name: paddleocr-vl-api-gpu2
+    ports:
+      - 58081:8081
+    depends_on:
+      paddleocr-vlm-server:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    shm_size: 8g
+    user: root
+    restart: unless-stopped
+    environment:
+      - VLM_BACKEND=${VLM_BACKEND:-vllm}
+    # 你的指定启动命令，指定pipeline OCR、端口8081、gpu:1
+    command: /bin/bash -c "paddlex --serve --pipeline OCR --port 8081 --device gpu:0"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # 底层VLM推理服务（GPU0，共用）
+  paddleocr-vlm-server:
+    image: ccr-2vdh3abv-pub.cnc.bj.baidubce.com/paddlepaddle/paddleocr-genai-${VLM_BACKEND}-server:${VLM_IMAGE_TAG_SUFFIX}
+    container_name: paddleocr-vlm-server-v2
+    volumes:
+      - ./vllm_config.yaml:/home/paddleocr/vllm_config.yaml:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    shm_size: 8g
+    user: root
+    restart: unless-stopped
+    command: /bin/bash -c "paddleocr genai_server --model_name PaddleOCR-VL-1.6-0.9B --host 0.0.0.0 --port 8080 --backend vllm --backend_config /home/paddleocr/vllm_config.yaml"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      start_period: 300s
+      interval: 15s
+      timeout: 15s
+      retries: 10

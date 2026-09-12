@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "inventory_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "boxes": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "frame": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "start_sample",
+          "end_sample",
+          "text",
+          "boxes",
+          "frame"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    }
+  },
+  "required": [
+    "inventory_artifact_id",
+    "cues",
+    "method",
+    "quality_status"
+  ],
+  "additionalProperties": false
+}

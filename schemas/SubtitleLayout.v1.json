@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "timeline_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "font_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "font_source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "width": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "height": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "en": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "zh": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "boxes": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "required": [
+          "unit_id",
+          "start_sample",
+          "end_sample",
+          "en",
+          "zh",
+          "boxes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    },
+    "overlays_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "canvas_height": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_english_preserved": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "timeline_artifact_id",
+    "font_sha512",
+    "font_source",
+    "width",
+    "height",
+    "events",
+    "quality_status",
+    "overlays_sha512"
+  ],
+  "additionalProperties": false
+}

@@ -33,7 +33,7 @@ def plan(canonical, utterances):
         # The supplied cut must be the LAST safe integral boundary.
         if (
             type(cut) is not int
-            or cut != int(next_start * fps)
+            or cut != min(int(next_start * fps), u.get("visual_cut_limit_frame", total))
             or not previous_end <= start < end <= F(cut) / fps <= next_start
             or cut > total
         ):

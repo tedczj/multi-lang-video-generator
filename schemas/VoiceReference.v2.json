@@ -1,0 +1,75 @@
+{
+  "type": "object",
+  "properties": {
+    "speaker_id": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audio_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "source_audio_artifact_id": {
+      "type": "string"
+    },
+    "bank_artifact_id": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "sample_rate": {
+      "const": 48000
+    },
+    "frames": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "gap_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_sample",
+          "end_sample",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "speaker_id",
+    "text",
+    "audio_sha512",
+    "source_audio_artifact_id",
+    "bank_artifact_id",
+    "candidate_id",
+    "sample_rate",
+    "frames",
+    "gap_samples",
+    "segments"
+  ]
+}

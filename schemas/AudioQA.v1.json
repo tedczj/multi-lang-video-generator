@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "overall": {
+      "enum": [
+        "REVIEW",
+        "FAIL"
+      ]
+    },
+    "method": {
+      "type": "string"
+    },
+    "leading_review_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "source_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "channels": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "frames": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "peak": {
+      "type": "number",
+      "minimum": 0
+    },
+    "energy_onset_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "REVIEW",
+              "SKIPPED"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "required"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "trimmed_samples": {
+      "const": 0
+    }
+  },
+  "required": [
+    "overall",
+    "method",
+    "leading_review_seconds",
+    "source_sha512",
+    "sample_rate",
+    "channels",
+    "frames",
+    "peak",
+    "energy_onset_seconds",
+    "checks",
+    "trimmed_samples"
+  ],
+  "additionalProperties": false
+}

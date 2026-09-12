@@ -1,5 +1,5 @@
-from .contracts import strategy
-from .util import uid, atomic_json, sha512, safe_name
+from .contracts import MULTI_INPUT_PORTS, strategy
+from .util import atomic_json, safe_name, sha512, uid
 
 
 def run_recipe(engine, asset, recipe):
@@ -20,7 +20,22 @@ def run_recipe(engine, asset, recipe):
             raise ValueError("Invalid recipe ports/parameters")
         resolved[s["id"]] = {}
         for port, b in s["inputs"].items():
-            if isinstance(b, str):
+            if isinstance(b, list):
+                if (
+                    not b
+                    or any(not isinstance(i, str) for i in b)
+                    or len(set(b)) != len(b)
+                    or (
+                        len(b) > 1
+                        and (s["node"], s["strategy"], port) not in MULTI_INPUT_PORTS
+                    )
+                ):
+                    raise ValueError("Invalid recipe fixed input array")
+                for identity in b:
+                    if engine.artifact(identity, asset)["schema_id"] != required[port]:
+                        raise ValueError("Recipe array schema mismatch")
+                resolved[s["id"]][port] = b
+            elif isinstance(b, str):
                 ref = engine.artifact(b, asset)
                 if ref["schema_id"] != required[port]:
                     raise ValueError("Recipe schema mismatch")

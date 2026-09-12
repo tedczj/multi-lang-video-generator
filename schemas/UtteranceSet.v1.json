@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "speech_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caption_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canonical_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "safe_cut_frame": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "speaker_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "speech_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "caption_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "merge_reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "caption_start_frame": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "caption_end_frame": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "source_subtitle_box": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "unit_id",
+          "start_sample",
+          "end_sample",
+          "safe_cut_frame",
+          "text",
+          "speaker_id",
+          "speech_ids",
+          "caption_ids",
+          "merge_reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    }
+  },
+  "required": [
+    "speech_artifact_id",
+    "caption_artifact_id",
+    "canonical_artifact_id",
+    "items",
+    "quality_status"
+  ],
+  "additionalProperties": false
+}

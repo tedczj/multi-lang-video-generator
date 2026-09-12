@@ -17,3 +17,5 @@ ruff==0.16.7
 typing_extensions==4.16.0
 yt-dlp==2026.8.19
 yt-dlp-ejs==0.8.0
+Pillow==12.1.1
+fonttools==4.61.1

@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 from . import events
-from .contracts import strategy, validate, validate_output
+from .contracts import MULTI_INPUT_PORTS, strategy, validate, validate_output
 from .process import run_worker, confirm_stopped
 from .util import (
     uid,
@@ -56,6 +56,8 @@ class Engine:
         )
         if not r or r["asset_sha512"] != asset or r["state"] != "SUCCEEDED":
             raise ValueError("Input is missing, cross-asset or producer not SUCCEEDED")
+        if r["quality_status"] == "FAIL":
+            raise ValueError("Input producer failed quality checks")
         p = confined(self.root, r["relative_path"])
         if p.stat().st_size != r["bytes"] or sha512(p) != r["sha512"]:
             raise ValueError("Artifact digest mismatch")
@@ -80,6 +82,7 @@ class Engine:
         scope="video",
         retry_of=None,
         run_id=None,
+        model_deployment=None,
     ):
         safe_name(node)
         safe_name(scope)
@@ -90,12 +93,30 @@ class Engine:
             raise ValueError("Unknown strategy parameter")
         params = defaults | params
         ensure_no_secrets(params)
+        models = (
+            self.config.get("models", {}).get(f"{node}/{name}", [])
+            if model_deployment is None
+            else model_deployment
+        )
+        ensure_no_secrets(models)
+        if node in {"N07", "N09", "N11", "N17"} and len(models) != 1:
+            raise ValueError(f"Configure {node}/{name} in local models config")
         refs = {}
         for port, identity in inputs.items():
-            r = self.artifact(identity, asset)
-            if r["schema_id"] != required[port]:
-                raise ValueError(f"Wrong schema on port {port}")
-            refs[port] = [r]
+            identities = identity if isinstance(identity, list) else [identity]
+            multiple = (node, name, port) in MULTI_INPUT_PORTS
+            if (
+                not identities
+                or len(set(identities)) != len(identities)
+                or (not multiple and len(identities) != 1)
+            ):
+                raise ValueError("Invalid port cardinality")
+            refs[port] = []
+            for item_id in identities:
+                r = self.artifact(item_id, asset)
+                if r["schema_id"] != required[port]:
+                    raise ValueError(f"Wrong schema on port {port}")
+                refs[port].append(r)
         if not self.db.one("SELECT sha512 FROM assets WHERE sha512=%s", (asset,)):
             raise ValueError("Unknown asset")
         if node == "N02":
@@ -132,7 +153,7 @@ class Engine:
             "retry_of": retry_of,
             "inputs": refs,
             "params": params,
-            "models": [],
+            "models": models,
             "output_dir": str(work),
             "code": code_provenance(directory / "source.snapshot.zip"),
         }
@@ -162,9 +183,15 @@ class Engine:
             } != outputs or len(result["artifacts"]) != len(outputs):
                 raise ValueError("Worker output ports/schema do not match registry")
             artifacts = []
+            quality_status = "REVIEW"
             parents = [r["artifact_id"] for values in refs.values() for r in values]
             for a in result["artifacts"]:
                 source = validate_output(work, a)
+                if (
+                    a["schema_id"] in {"AudioQA.v1", "QAReport.v1"}
+                    and read_json(source)["overall"] == "FAIL"
+                ):
+                    quality_status = "FAIL"
                 target = directory / "artifacts" / a["port"] / source.name
                 durable_copy(source, target)
                 artifacts.append(
@@ -189,7 +216,7 @@ class Engine:
                 "execution_id": identity,
                 "request_sha512": sha512(directory / "request.json"),
                 "artifacts": artifacts,
-                "quality_status": "REVIEW",
+                "quality_status": quality_status,
                 "code": request["code"],
             }
             atomic_json(directory / "manifest.json", manifest)
@@ -380,10 +407,11 @@ class Engine:
             asset,
             r["node"],
             r["strategy_id"],
-            {k: v[0]["artifact_id"] for k, v in req["inputs"].items()},
+            {k: [ref["artifact_id"] for ref in v] for k, v in req["inputs"].items()},
             req["params"],
             r["scope"],
             identity,
+            model_deployment=req["models"],
         )
 
     def recover(self, asset, identity):

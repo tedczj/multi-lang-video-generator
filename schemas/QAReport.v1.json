@@ -3,10 +3,29 @@
   "type": "object",
   "properties": {
     "overall": {
-      "const": "REVIEW"
+      "enum": [
+        "REVIEW",
+        "FAIL",
+        "PASS"
+      ]
     },
     "checks": {
       "type": "array"
+    },
+    "render_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "layout_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "raw_audio_sha512": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{128}$"
+      }
     }
   },
   "required": [

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "batch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unit_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_characters": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_language": {
+      "const": "en"
+    },
+    "target_language": {
+      "const": "zh"
+    },
+    "prompt_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "schema_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    }
+  },
+  "required": [
+    "batch_id",
+    "source_artifact_id",
+    "unit_ids",
+    "source_characters",
+    "source_language",
+    "target_language",
+    "prompt_sha512",
+    "schema_sha512"
+  ],
+  "additionalProperties": false
+}

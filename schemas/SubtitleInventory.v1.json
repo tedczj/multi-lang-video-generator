@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "video_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtitle_streams": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "hard_subtitles": {
+      "enum": [
+        "unknown",
+        "present",
+        "absent"
+      ]
+    },
+    "roi": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    }
+  },
+  "required": [
+    "video_artifact_id",
+    "subtitle_streams",
+    "hard_subtitles",
+    "roi",
+    "evidence",
+    "quality_status"
+  ],
+  "additionalProperties": false
+}

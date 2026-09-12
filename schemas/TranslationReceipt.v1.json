@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "requested_model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resolved_model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "unknown_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effort": {
+      "const": "medium"
+    },
+    "cli_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "returncode": {
+      "const": 0
+    },
+    "jsonl_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "response_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    }
+  },
+  "required": [
+    "requested_model",
+    "resolved_model",
+    "unknown_reason",
+    "effort",
+    "cli_version",
+    "seconds",
+    "returncode",
+    "jsonl_sha512",
+    "response_sha512",
+    "quality_status"
+  ],
+  "additionalProperties": false
+}

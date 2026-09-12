@@ -2,7 +2,7 @@
 
 Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水线。第一期实现媒体执行，不包含真实翻译、克隆语音或字幕制作；提示音演示的业务 QA 始终为 REVIEW。
 
-第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二、三期尚未开发。
+第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期已接入真实翻译、ASR/VAD、CosyVoice3 与双语候选成片链路，见 [整体验证与问题记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。正式视频集和人工质量验收仍未完成；第三期待开发。
 
 ## 本地启动
 
@@ -62,3 +62,7 @@ docker compose up -d mysql
 范围、结果与限制见 [第一期实现报告](docs/verification/PHASE_1_IMPLEMENTATION_ZH.md)。后续规划见 [文档导航](docs/README_ZH.md)。
 
 YouTube 下载使用锁定版本的 yt-dlp/EJS 和 Node。若 Python.org 安装的 Python 缺少 CA，首次 setup 会使用存在的系统 `/etc/ssl/cert.pem`；已有环境可在本地 `.env` 设置 `SSL_CERT_FILE=/etc/ssl/cert.pem`，证书校验保持启用。空数据卷初始化实测：`.venv/bin/python scripts/measure_cold_start.py --out evidence/mysql_cold_NEW`，脚本使用独立临时容器/卷，结束后清理这两个临时资源。
+
+## 第二期候选成片
+
+已接入字幕清点/提取、Whisper+Silero VAD、归句、Codex 合批翻译、参考音提取、CosyVoice3、译音质检、双语布局与真实音频成片。`candidate` 串行运行并保存每批/每句不可变血缘；`verify_phase.py --phase 2` 保存实际运行与未完成项。正式视频集、自动多人识别和人工质量验收仍有缺项，不能视为第二期正式通过。部署与命令见 [workers/README.md](workers/README.md)，当前证据和问题见 [整体验证记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。

@@ -271,7 +271,7 @@ def write_zeros(dst, n):
         n -= take
 
 
-def render(video, audio, t, work):
+def render(video, audio, t, work, dub_audio=None, overlay=None, output_height=None):
     verify(t)
     fps = F(t["fps"])
     info = probe(video, work, False)["streams"][0]
@@ -308,6 +308,20 @@ def render(video, audio, t, work):
             write_zeros(dst, t["output_samples"] - output_pos)
         if output_pos > t["output_samples"]:
             raise ValueError("Audio cumulative quantization overflow")
+    dub_samples = {}
+    if dub_audio is not None:
+        for d in t["dubs"]:
+            with wave.open(str(dub_audio[d["audio_sha512"]]), "rb") as wav:
+                if (
+                    wav.getnchannels(),
+                    wav.getsampwidth(),
+                    wav.getframerate(),
+                    wav.getnframes(),
+                ) != (2, 2, 48000, d["samples"]):
+                    raise ValueError("Dub PCM format/sample count mismatch")
+                dub_samples[d["id"]] = array.array(
+                    "h", wav.readframes(wav.getnframes())
+                )
     master_audio = work / "master.wav"
     with (
         wave.open(str(retimed), "rb") as src,
@@ -321,15 +335,28 @@ def render(video, audio, t, work):
                 lo = max(position, d["start_sample"])
                 hi = min(position + len(values) // 2, d["start_sample"] + d["samples"])
                 for s in range(lo, hi):
-                    tone = round(
-                        1000
-                        * math.sin(
-                            2 * math.pi * d["tone_hz"] * (s - d["start_sample"]) / 48000
+                    tone = (
+                        0
+                        if dub_audio is not None
+                        else round(
+                            1000
+                            * math.sin(
+                                2
+                                * math.pi
+                                * d["tone_hz"]
+                                * (s - d["start_sample"])
+                                / 48000
+                            )
                         )
                     )
                     for ch in (0, 1):
                         idx = (s - position) * 2 + ch
-                        value = values[idx] + tone
+                        added = (
+                            dub_samples[d["id"]][(s - d["start_sample"]) * 2 + ch]
+                            if dub_audio is not None
+                            else tone
+                        )
+                        value = values[idx] + added
                         if not -32768 <= value <= 32767:
                             raise ValueError("Audio clipping")
                         values[idx] = value
@@ -363,7 +390,7 @@ def render(video, audio, t, work):
         "-pix_fmt",
         "rgb24",
         "-s",
-        f"{width}x{height}",
+        f"{width}x{output_height or height}",
         "-r",
         str(fps),
         "-i",
@@ -393,13 +420,17 @@ def render(video, audio, t, work):
         encoder = subprocess.Popen(encode_argv, stdin=subprocess.PIPE, stderr=encerr)
         try:
             last = None
+            frame_index = 0
             for p in t["pieces"]:
                 for _ in range(p["output_end_frame"] - p["output_start_frame"]):
                     if p["kind"] == "source":
                         last = decoder.stdout.read(frame_bytes)
                         if len(last) != frame_bytes:
                             raise ValueError("Source frame count mismatch")
-                    encoder.stdin.write(last)
+                    encoder.stdin.write(
+                        overlay(last, frame_index, fps) if overlay else last
+                    )
+                    frame_index += 1
             if decoder.stdout.read(1):
                 raise ValueError("Unexpected extra source frames")
             encoder.stdin.close()

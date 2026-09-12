@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "properties": {
+    "source_audio_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sample_rate": {
+      "const": 48000
+    },
+    "estimated_speaker_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "speaker_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "start_sample",
+          "end_sample",
+          "speaker_id"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    },
+    "confidence": {
+      "type": "null"
+    },
+    "unknown_reason": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "source_audio_artifact_id",
+    "sample_rate",
+    "estimated_speaker_count",
+    "turns",
+    "quality_status",
+    "confidence",
+    "unknown_reason"
+  ],
+  "additionalProperties": false
+}

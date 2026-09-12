@@ -1,0 +1,171 @@
+{
+  "type": "object",
+  "properties": {
+    "source_audio_artifact_id": {
+      "type": "string"
+    },
+    "speech_artifact_id": {
+      "type": "string"
+    },
+    "speaker_track_artifact_id": {
+      "type": "string"
+    },
+    "speakers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "speaker_id": {
+            "type": "string"
+          },
+          "collected_seconds": {
+            "type": "number"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "speaker_id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "candidate_id": {
+                  "type": "string"
+                },
+                "audio_path": {
+                  "type": "string"
+                },
+                "audio_sha512": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{128}$"
+                },
+                "duration_seconds": {
+                  "type": "number"
+                },
+                "peak": {
+                  "type": "number"
+                },
+                "rms": {
+                  "type": "number"
+                },
+                "eligible": {
+                  "type": "boolean"
+                },
+                "segments": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "start_sample": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end_sample": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "start_sample",
+                      "end_sample",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "frames": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "gap_samples": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "speaker_id",
+                "text",
+                "candidate_id",
+                "audio_path",
+                "audio_sha512",
+                "duration_seconds",
+                "peak",
+                "rms",
+                "eligible",
+                "segments",
+                "frames",
+                "gap_samples"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "selected_candidate_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "REVIEW",
+              "INSUFFICIENT_REFERENCE"
+            ]
+          }
+        },
+        "required": [
+          "speaker_id",
+          "collected_seconds",
+          "candidates",
+          "selected_candidate_id",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "discarded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "speech_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "speech_id",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "quality_status": {
+      "const": "REVIEW"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "source_audio_artifact_id",
+    "speech_artifact_id",
+    "speaker_track_artifact_id",
+    "speakers",
+    "discarded",
+    "quality_status",
+    "limitations"
+  ],
+  "additionalProperties": false
+}

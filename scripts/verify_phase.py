@@ -71,11 +71,14 @@ def resources(label):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--phase", type=int, choices=[1], required=True)
+    p.add_argument("--phase", type=int, choices=[1, 2], required=True)
     p.add_argument("--fixtures", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--config")
     a = p.parse_args()
+    if a.phase == 2:
+        from verify_phase2 import verify
+        return verify(a)
     out = Path(a.out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     config = load(a.config)

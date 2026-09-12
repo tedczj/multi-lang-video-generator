@@ -2,7 +2,7 @@
 
 更新：2026-09-12。当前设计以 [plan_0.md](plan_0.md) 为基线：**单 Mac 主控、单实例轻量 MySQL、串行执行、独立模型 worker**。
 
-第一期基础设施和媒体执行已落地，安装与运行见 [项目 README](../README.md)。真实 MySQL、重试恢复、媒体、故障、备份、YouTube 下载及空卷初始化均已有新证据，第一期已 PASS。详见 [第一期最终验收](verification/PHASE_1_ACCEPTANCE_ZH.md)。第二、三期仍为设计。
+第一期基础设施和媒体执行已落地，安装与运行见 [项目 README](../README.md)。真实 MySQL、重试恢复、媒体、故障、备份、YouTube 下载及空卷初始化均已有新证据，第一期已 PASS。详见 [第一期最终验收](verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期候选链路已实现，用户已接受三段预览方向，但音色、说话人库和整片验收未完成；第三期待开发。见 [最新三段预览](verification/YOUTUBE_Ye33eY4UNtY_THREE_SEGMENTS_ZH.md) 与 [第三期交接条件](kickoffs/PHASE_3_KICKOFF_ZH.md)。
 
 ## 当前开发入口
 
@@ -17,7 +17,7 @@
 
 实施先读完整计划，再进入所属期 kickoff。新方案与历史材料有冲突时，以完整计划及原始大纲为准。
 
-固定业务选择：Codex CLI `gpt-5.6-terra` / `medium`，每批最多 8 个完整语句且源文不超过 6,000 字符；官方 `FunAudioLLM/Fun-CosyVoice3-0.5B-2512`；英文后 1 秒播放中文，中文后至少 1 秒；优先使用自然空档，只补必要定格，英文字幕上、中文下。
+固定业务选择：Codex CLI `gpt-5.6-terra` / `medium`，每批最多 8 个完整语句且源文不超过 6,000 字符；官方 `FunAudioLLM/Fun-CosyVoice3-0.5B-2512`；英文后 1 秒播放中文，中文后至少 1 秒；优先使用自然空档，只补必要定格，保留原英文时中文在画面内优先下方、空间不足时上方，中英文同步保持。
 
 ## 文档与源码来源
 

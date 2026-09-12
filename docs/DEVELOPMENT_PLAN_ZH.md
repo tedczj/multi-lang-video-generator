@@ -1,8 +1,8 @@
 # 多语言视频流水线开发计划
 
-更新：2026-09-12。依据：[设计大纲 plan_0.md](plan_0.md)。状态：**第一期已验收 PASS；第二、三期仍为实施规格**。
+更新：2026-09-12。依据：[设计大纲 plan_0.md](plan_0.md)。状态：**第一期已验收 PASS；第二期候选链路已实现、正式验收未完成；第三期待开发**。
 
-第一期已新增 `src/mlvideo`、Compose、SQL、worker 协议和实际测试入口，运行方法见 [项目 README](../README.md)，结果与边界见 [第一期最终验收](verification/PHASE_1_ACCEPTANCE_ZH.md)。下文保留完整三期规格；后续节点仍待实现。参考包结果不计入本计划验收。
+第一期已新增 `src/mlvideo`、Compose、SQL、worker 协议和实际测试入口，运行方法见 [项目 README](../README.md)，结果与边界见 [第一期最终验收](verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期当前实现与剩余项见 [三段预览报告](verification/YOUTUBE_Ye33eY4UNtY_THREE_SEGMENTS_ZH.md) 和 [第三期交接条件](kickoffs/PHASE_3_KICKOFF_ZH.md)。下文保留完整三期规格；未完成项仍须按实际证据验收。参考包结果不计入本计划验收。
 
 ## 1. 设计基线与需求编号
 
@@ -228,7 +228,7 @@ codex exec --skip-git-repo-check --sandbox read-only \
 
 `--json` 输出事件流，最终结构化对象单独读取；成功条件同时检查进程状态、最终 JSON Schema 和 ID/语义完整性。worker 在专用工作目录运行，声明只进行翻译，并记录有效配置，不使用上次会话恢复来冒充重试。[Codex 非交互模式](https://learn.chatgpt.com/docs/non-interactive-mode)
 
-本次只核对本机 `codex-cli 0.153.4` 的帮助参数；模型名与 medium 也有 [GPT-5.6 Terra 官方说明](https://developers.openai.com/api/docs/models/gpt-5.6-terra) 支持。账户在目标机器能否调用，仍需第二期实际验证。CLI/服务未返回真实 resolved identity 时填 null，不以请求参数伪造实际回执。
+设计时先核对本机 `codex-cli 0.153.4` 的帮助参数；模型名与 medium 也有 [GPT-5.6 Terra 官方说明](https://developers.openai.com/api/docs/models/gpt-5.6-terra) 支持。当前本机已完成第二期真实 Codex 调用，见对应验证报告；其他目标机器仍需实际验证。CLI/服务未返回真实 resolved identity 时填 null，不以请求参数伪造实际回执。
 
 ### 7.2 官方 CosyVoice3
 
@@ -298,7 +298,7 @@ MySQL 资源报告分别记录容器内存、Docker Desktop 虚拟机额外开�
 
 ## 11. 测试编号与验收协议
 
-下表保留三期测试规格。第一期基础项已有实际执行证据并验收 PASS，具体范围见 [最终验收报告](verification/PHASE_1_ACCEPTANCE_ZH.md)；第二、三期扩展项仍待实现，不能由第一期通过推导其完成。每轮 `evidence/<verification_id>/` 至少包含 environment.json、commands.jsonl、JUnit、case-results.json、输入素材 manifest 和关键产物引用；原始执行证据仍归属 data/videos。case-results 逐项记录环境、素材、步骤、独立预期、断言、结果和证据路径。阶段入口必须检查所需测试确实收集，缺配置或实际依赖时 FAIL；不能用全 SKIP 取得阶段 PASS。
+下表保留三期测试规格。第一期基础项已有实际执行证据并验收 PASS，具体范围见 [最终验收报告](verification/PHASE_1_ACCEPTANCE_ZH.md)；第二期已有候选链路执行证据但扩展验收尚未完成，第三期仍待实现，不能由第一期通过推导其完成。每轮 `evidence/<verification_id>/` 至少包含 environment.json、commands.jsonl、JUnit、case-results.json、输入素材 manifest 和关键产物引用；原始执行证据仍归属 data/videos。case-results 逐项记录环境、素材、步骤、独立预期、断言、结果和证据路径。阶段入口必须检查所需测试确实收集，缺配置或实际依赖时 FAIL；不能用全 SKIP 取得阶段 PASS。
 
 第一期已实现的验收命令（先完成根 README 中的安装与素材准备，输出目录每次新建）：
 
@@ -307,7 +307,7 @@ MySQL 资源报告分别记录容器内存、Docker Desktop 虚拟机额外开�
   --fixtures tests/fixtures/manifest.json --out evidence/phase1_run_NEW
 ```
 
-phase 2/3 计划扩展同一入口并使用独立输出目录，当前脚本仅支持 phase 1。详见三期 kickoff 的环境、输入和执行步骤。
+当前脚本支持 phase 1/2；phase 2 保留必需项未通过时的 INCOMPLETE 状态，phase 3 入口仍待实现。各期使用独立输出目录。详见三期 kickoff 的环境、输入和执行步骤。
 
 | 测试 ID | 素材与动作 | 独立预期与断言 | 阶段 / 证据子目录 |
 |---|---|---|---|

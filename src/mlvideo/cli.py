@@ -97,6 +97,10 @@ def main():
     s = sub.add_parser("pipeline")
     s.add_argument("asset")
     s.add_argument("--recipe", required=True)
+    s = sub.add_parser("candidate")
+    s.add_argument("asset")
+    s.add_argument("--source", required=True)
+    s.add_argument("--settings", required=True)
     for name in ("retry", "recover"):
         s = sub.add_parser(name)
         s.add_argument("asset")
@@ -178,6 +182,15 @@ def main():
 
                         result = run_recipe(
                             engine, args.asset, read_json(Path(args.recipe))
+                        )
+                    elif args.command == "candidate":
+                        from .phase2_pipeline import run_candidate
+
+                        result = run_candidate(
+                            engine,
+                            args.asset,
+                            args.source,
+                            read_json(Path(args.settings)),
                         )
                     elif args.command == "backup":
                         from .backup import backup

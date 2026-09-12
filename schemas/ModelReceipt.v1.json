@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "requested_model": {
+      "type": "string"
+    },
+    "resolved_model": {
+      "type": "string"
+    },
+    "revision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "weight_sha512": {
+      "type": "null"
+    },
+    "unknown_reason": {
+      "type": "string"
+    },
+    "backend": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "dtype": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "chunk_frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "generation_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "source_commit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_dirty": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "source_tree_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "source_snapshot_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "packages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "requested_model",
+    "resolved_model",
+    "revision",
+    "weight_sha512",
+    "unknown_reason",
+    "backend",
+    "device",
+    "dtype",
+    "seed",
+    "sample_rate",
+    "chunk_frames",
+    "generation_seconds",
+    "source_commit",
+    "source_dirty",
+    "source_tree_sha512",
+    "source_snapshot_sha512",
+    "packages"
+  ],
+  "additionalProperties": false
+}

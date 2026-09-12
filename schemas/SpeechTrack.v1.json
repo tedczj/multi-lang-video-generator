@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "audio_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sample_rate": {
+      "const": 48000
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string"
+          },
+          "speaker_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "start_sample",
+          "end_sample",
+          "text",
+          "speaker_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "words": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "start_sample",
+          "end_sample",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "protected_intervals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_sample": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "start_sample",
+          "end_sample"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "coverage_status": {
+      "enum": [
+        "REVIEW",
+        "PASS"
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "audio_artifact_id",
+    "sample_rate",
+    "segments",
+    "words",
+    "protected_intervals",
+    "coverage_status",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

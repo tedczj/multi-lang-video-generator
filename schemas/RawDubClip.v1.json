@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "unit_id": {
+      "type": "string"
+    },
+    "speaker_id": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string"
+    },
+    "translation_artifact_id": {
+      "type": "string"
+    },
+    "reference_artifact_id": {
+      "type": "string"
+    },
+    "reference_audio_artifact_id": {
+      "type": "string"
+    },
+    "audio_sha512": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$"
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "channels": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "frames": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "unit_id",
+    "speaker_id",
+    "text",
+    "translation_artifact_id",
+    "reference_artifact_id",
+    "reference_audio_artifact_id",
+    "audio_sha512",
+    "sample_rate",
+    "channels",
+    "frames"
+  ],
+  "additionalProperties": false
+}
