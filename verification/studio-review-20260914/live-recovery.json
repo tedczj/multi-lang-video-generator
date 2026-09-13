@@ -1,0 +1,22 @@
+{
+  "/api/series": 200,
+  "/api/jobs": 200,
+  "/api/episodes/episode_8533ee45ea5645909c55724d0a00e3d9": 200,
+  "jobs": [
+    {
+      "id": "job_1531e035786f489d848611b14b93a6bc",
+      "state": "INTERRUPTED"
+    },
+    {
+      "id": "job_4a393e667b564f878b17e9db130c1035",
+      "state": "FAILED"
+    },
+    {
+      "id": "job_81cd111b7fd24a4389f57f915214187e",
+      "state": "INTERRUPTED"
+    }
+  ],
+  "browser": "PASS",
+  "poll": "200",
+  "errors": []
+}

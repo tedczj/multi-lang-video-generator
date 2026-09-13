@@ -1,5 +1,5 @@
 import json
-import pymysql
+import contextlib
 from .config import ROOT, connection_options
 from .util import sha512
 
@@ -10,6 +10,8 @@ class DB:
         self.connect()
 
     def connect(self):
+        import pymysql
+
         self.conn = pymysql.connect(
             **connection_options(self.config, self.migration),
             autocommit=True,
@@ -20,6 +22,17 @@ class DB:
             write_timeout=30,
             init_command="SET time_zone = '+00:00'",
         )
+
+    @contextlib.contextmanager
+    def transaction(self):
+        """Short catalogue transaction; never wrap a long model/media invocation."""
+        self.conn.begin()
+        try:
+            yield
+            self.conn.commit()
+        except BaseException:
+            self.conn.rollback()
+            raise
 
     def close(self):
         self.conn.close()

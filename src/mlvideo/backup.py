@@ -1,9 +1,10 @@
 """Paused logical MySQL export, with a hash-verified complete file inventory."""
 
 import json
+import functools
 import shutil
 from pathlib import Path
-from .util import atomic_json, read_json, sha512, confined
+from .util import atomic_json, read_json, sha512, confined, file_lock
 
 TABLES = [
     "schema_migrations",
@@ -20,7 +21,20 @@ TABLES = [
     "releases",
 ]
 
+from .studio.catalog import TABLES as STUDIO_TABLES
+TABLES += STUDIO_TABLES
 
+
+def catalogue_locked(fn):
+    @functools.wraps(fn)
+    def wrapped(engine, *args, **kwargs):
+        # Caller already owns the legacy media writer lock. Keep lock order.
+        with file_lock(engine.root / ".studio.catalog.lock", blocking=True):
+            return fn(engine, *args, **kwargs)
+    return wrapped
+
+
+@catalogue_locked
 def backup(engine, out):
     out = Path(out).resolve()
     if out.is_relative_to(engine.root):
@@ -37,7 +51,7 @@ def backup(engine, out):
     for p in sorted(engine.root.rglob("*")):
         if p.is_symlink():
             raise ValueError("Symlink in backup source")
-        if p.is_file() and p.name != ".writer.lock":
+        if p.is_file() and p.name not in {".writer.lock", ".studio.catalog.lock", ".studio.worker.lock"}:
             relative = str(p.relative_to(engine.root))
             target = out / "files" / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -60,6 +74,7 @@ def backup(engine, out):
     }
 
 
+@catalogue_locked
 def restore(engine, source):
     source = Path(source).resolve()
     m = read_json(source / "manifest.json")
@@ -76,7 +91,7 @@ def restore(engine, source):
         or source.is_relative_to(target)
     ):
         raise ValueError("Restore requires an isolated database AND data root")
-    if any(p.name != ".writer.lock" for p in target.iterdir()):
+    if any(p.name not in {".writer.lock", ".studio.catalog.lock", ".studio.worker.lock"} for p in target.iterdir()):
         raise ValueError("Restore root must be empty")
     if sha512(source / "database.json") != m["dump_sha512"]:
         raise ValueError("Backup dump changed")
@@ -106,7 +121,7 @@ def restore(engine, source):
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source / "files" / name, dst)
     for t in TABLES[2:]:
-        pending = list(dump[t])
+        pending = list(dump.get(t, []))
         # retry_of FKs require parent-first insertion, independently of SELECT order.
         while pending:
             ready = [
@@ -127,5 +142,5 @@ def restore(engine, source):
     return {
         "state": "RESTORED",
         "files": len(m["files"]),
-        "tables": {t: len(dump[t]) for t in TABLES},
+        "tables": {t: len(dump.get(t, [])) for t in TABLES},
     }

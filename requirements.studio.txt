@@ -1,0 +1,4 @@
+# Separate optional web dependencies. Existing model environments are unchanged.
+# Versions used by this implementation's API tests; not a transitive lock file.
+fastapi==0.128.2
+uvicorn==0.48.0

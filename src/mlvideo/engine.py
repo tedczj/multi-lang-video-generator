@@ -72,6 +72,41 @@ class Engine:
             "path": str(p),
         }
 
+    def input_artifact(self, identity, asset, node, name, port, params):
+        """The only cross-asset capability is an approved series-reference import.
+
+        Ordinary artifact() remains fail-closed. Registration/recovery uses the
+        same check as new execution, rather than trusting serialized input paths.
+        """
+        if (node, name) != ("N10", "studio_import_reference"):
+            return self.artifact(identity, asset)
+        if port not in {"audio", "reference"}:
+            raise ValueError("Invalid series import port")
+        from .studio.catalog import Catalog
+
+        catalog = Catalog(self.db, self.config)
+        purpose = params.get("purpose")
+        if purpose not in {"dubbing", "preview"}:
+            raise ValueError("Invalid series import purpose")
+        profile = catalog.usable_profile(params["profile_id"], published=purpose != "preview")
+        payload = profile["payload"]
+        if profile["payload_sha512"] != params["profile_sha512"]:
+            raise ValueError("Voice profile snapshot changed")
+        if identity != payload["references"][port]["artifact_id"]:
+            raise ValueError("Cross-episode input is not the approved profile reference")
+        character = catalog.get("studio_characters", profile["character_id"])
+        if character["archived"] or not self.db.one(
+            "SELECT id FROM studio_episodes WHERE asset_sha512=%s AND series_id=%s",
+            (asset, character["series_id"]),
+        ):
+            raise ValueError("Cross-episode target is outside the character's series")
+        if purpose == "preview" and asset != payload["source_asset_sha512"]:
+            raise ValueError("Draft preview must run on the reference source asset")
+        ref = self.artifact(identity, payload["source_asset_sha512"])
+        if ref["sha512"] != payload["references"][port]["sha512"]:
+            raise ValueError("Approved reference hash mismatch")
+        return ref
+
     def run(
         self,
         asset,
@@ -99,7 +134,7 @@ class Engine:
             else model_deployment
         )
         ensure_no_secrets(models)
-        if node in {"N07", "N09", "N11", "N17"} and len(models) != 1:
+        if node in {"N07", "N09", "N11", "N17"} and not name.startswith("studio_") and len(models) != 1:
             raise ValueError(f"Configure {node}/{name} in local models config")
         refs = {}
         for port, identity in inputs.items():
@@ -113,7 +148,7 @@ class Engine:
                 raise ValueError("Invalid port cardinality")
             refs[port] = []
             for item_id in identities:
-                r = self.artifact(item_id, asset)
+                r = self.input_artifact(item_id, asset, node, name, port, params)
                 if r["schema_id"] != required[port]:
                     raise ValueError(f"Wrong schema on port {port}")
                 refs[port].append(r)
@@ -209,9 +244,9 @@ class Engine:
                         "parents": parents,
                     }
                 )
-            for port_refs in refs.values():
+            for port, port_refs in refs.items():
                 for ref in port_refs:
-                    self.artifact(ref["artifact_id"], asset)
+                    self.input_artifact(ref["artifact_id"], asset, node, name, port, params)
             manifest = {
                 "execution_id": identity,
                 "request_sha512": sha512(directory / "request.json"),
@@ -279,7 +314,7 @@ class Engine:
             self.db.insert("executions", row | {"state": "RUNNING"})
         for port, values in r["inputs"].items():
             for ordinal, ref in enumerate(values):
-                self.artifact(ref["artifact_id"], r["asset_sha512"])
+                self.input_artifact(ref["artifact_id"], r["asset_sha512"], r["node"], r["strategy_id"], port, r["params"])
                 self.db.ensure(
                     "execution_inputs",
                     {
@@ -370,8 +405,8 @@ class Engine:
         )
         fault("event")
         self.db.query(
-            "UPDATE executions SET state='SUCCEEDED',manifest_path=%s,manifest_hash=%s,finished_at=UTC_TIMESTAMP(6) WHERE id=%s AND state='RUNNING'",
-            (str(p.relative_to(self.root)), sha512(p), m["execution_id"]),
+            "UPDATE executions SET state='SUCCEEDED',manifest_path=%s,manifest_hash=%s,quality_status=%s,finished_at=UTC_TIMESTAMP(6) WHERE id=%s AND state='RUNNING'",
+            (str(p.relative_to(self.root)), sha512(p), m["quality_status"], m["execution_id"]),
         )
         fault("commit_ack")
 

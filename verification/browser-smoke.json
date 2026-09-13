@@ -1,0 +1,131 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Create character through the real browser/API",
+    "Select role, edit translation, save versioned annotation",
+    "Real WAV streaming playback / duration",
+    "Client-side filtering without losing edited rows",
+    "Split creates a new revision and refreshes the review list",
+    "Character references and voice-profile controls render"
+  ],
+  "console_errors": [],
+  "browser": "system Chromium DOM, Playwright + FastAPI TestClient transport (native browser HTTP blocked)",
+  "requests": [
+    {
+      "path": "/api/session",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/jobs",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7/characters",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/episodes/episode_583dc320733243aa8bc7adb7bdcf3b93",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/revisions/rev_24d655fa15664f358045809033cd4010/segments/seg_85352c0710af4f928374685a30f46f92/annotation",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "path": "/api/episodes/episode_583dc320733243aa8bc7adb7bdcf3b93",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/audio/art_33a2595fb62f4834a69a08f6a2988c74/clip?start_sample=24000&end_sample=96000",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/episodes/episode_583dc320733243aa8bc7adb7bdcf3b93/revisions",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "path": "/api/episodes/episode_583dc320733243aa8bc7adb7bdcf3b93",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/characters/char_482fc7802b914be2bbe154d9aeeaed3c",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series/series_f8b038e6f2544966a4108f9d55e714a7",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/series",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "data": "EXPLICIT GENERATED TONE/UI FIXTURES; NOT real speech or MySQL"
+}

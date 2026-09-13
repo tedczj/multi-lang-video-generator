@@ -1,0 +1,25 @@
+{
+  "pytest": {
+    "tests": 105,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 284.792,
+    "command": "PYTHONPATH=src python -m pytest tests/unit tests/integration/test_phase2_media.py tests/studio/test_catalog.py tests/studio/test_api.py tests/studio/test_flow.py tests/studio/test_backup_and_gates.py -q --junitxml=verification/studio-tests.xml"
+  },
+  "browser_dom_api_bridge": {
+    "status": "PASS",
+    "checks": 6,
+    "native_browser_http": false
+  },
+  "live_uvicorn_http": {
+    "status": "PASS",
+    "checks": 5
+  },
+  "compileall": "PASS",
+  "javascript_syntax": "PASS",
+  "diff_whitespace": "PASS",
+  "patch_application": "PASS: git apply --check on clean local clone of uploaded source baseline",
+  "actual_mysql_8_4": "NOT_EXECUTED",
+  "real_models_and_voice_similarity": "NOT_EXECUTED"
+}

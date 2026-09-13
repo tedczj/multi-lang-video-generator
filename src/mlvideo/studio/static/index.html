@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>声线工作台 · 系列配音管理</title><link rel="stylesheet" href="/static/studio.css"></head>
+<body>
+<aside class="sidebar"><a class="brand" href="#"><span class="brand-mark">≋</span><span>声线工作台<small>SERIES VOICE STUDIO</small></span></a><div class="local-pill"><i></i> 本机工作区 · 原声不离开你的流程</div><div class="nav-title">我的系列<button data-action="new-series" class="icon-button" title="创建系列">＋</button></div><nav id="series-nav"></nav><button class="nav-link jobs-link" data-action="jobs">任务与产出 <span id="job-count" class="count">0</span></button><div class="sidebar-bottom"><p>先确认角色，再固定声音。</p><small>每次生成独立留档，历史产物不覆盖。</small></div></aside>
+<div class="workspace"><header class="topbar"><div id="breadcrumbs">工作区 / 总览</div><div class="top-actions"><button class="button subtle" data-action="refresh">刷新</button></div></header><main id="content" aria-live="polite"><div class="empty">正在读取工作区…</div></main><footer class="footer">角色确认 ≠ 参考批准 ≠ 音色验收。自动建议始终等待人工复审。</footer></div>
+<div id="player-tray" class="player-tray hidden"><div><small>正在试听</small><strong id="player-title"></strong></div><audio id="audio-player" controls preload="none"></audio><button class="icon-button" data-action="close-player" aria-label="关闭播放器">×</button></div>
+<dialog id="modal"><form id="modal-form"><div class="modal-head"><h2 id="modal-title"></h2><button class="icon-button" type="button" data-action="close-modal" aria-label="关闭">×</button></div><div id="modal-body"></div><div class="modal-actions"><span id="modal-error" role="alert"></span><button type="button" class="button subtle" data-action="close-modal">取消</button><button id="modal-submit" type="submit" class="button primary">确认</button></div></form></dialog>
+<div id="toast" role="status" class="toast hidden"></div><script src="/static/studio.js" defer></script>
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "studio": {
+    "prepare_settings": {
+      "caption_mode": "asr",
+      "roi": [0, 0.5, 1, 1],
+      "diarization": false
+    },
+    "render_settings": {
+      "font_size": 24,
+      "preserve_source_english": false,
+      "footer_height": 0,
+      "source_subtitle_box": null
+    }
+  }
+}

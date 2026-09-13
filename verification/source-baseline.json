@@ -1,0 +1,9 @@
+{
+  "source_archive": "f8fe40c8-1163-4fb1-a54b-3aa5c913b7ed.zip",
+  "source_archive_sha512": "28f4c0daf45b173cca34cb517de31c41273d72f64a0d370215397bf773aef0164b554cc756d044b2c510b1a564b2ab0b19ba6bdbc587db18904323b9d946d461",
+  "local_baseline_commit": "29cc46f8d11bf6a3c8b776f55c62d0879695d6b1",
+  "local_baseline_is_remote_commit": false,
+  "github_push_performed": false,
+  "requested_repository": "tedczj/multi-lang-video-generator",
+  "authority": "uploaded ZIP, not current remote main"
+}

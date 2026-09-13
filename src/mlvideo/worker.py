@@ -31,7 +31,11 @@ def main():
         )
 
     node = r["node"]
-    if node in {"N05", "N06", "N07", "N08", "N09", "N10", "N17", "N19"} or r[
+    if r["strategy_id"].startswith("studio_"):
+        from .studio.nodes import run as studio_run
+
+        studio_run(r, work, output)
+    elif node in {"N05", "N06", "N07", "N08", "N09", "N10", "N17", "N19"} or r[
         "strategy_id"
     ] in {"dub_gap_first", "dub_ffmpeg", "excerpt", "audio_source"}:
         from .phase2 import run

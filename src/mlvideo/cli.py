@@ -83,6 +83,11 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--config")
     sub = p.add_subparsers(dest="command", required=True)
+    studio = sub.add_parser("studio", help="本机系列/角色配音管理页")
+    studio.add_argument("--port", type=int, default=8787)
+    studio.add_argument("--no-worker", action="store_true", help="只启动页面；另行运行 studio-worker")
+    worker = sub.add_parser("studio-worker", help="持久队列单进程执行器")
+    worker.add_argument("--once", action="store_true")
     for name in ("doctor", "migrate"):
         sub.add_parser(name)
     for name in ("ingest", "download"):
@@ -121,6 +126,39 @@ def main():
     db = None
     try:
         config = load(args.config)
+        if args.command == "studio-worker":
+            from .studio.jobs import worker_loop
+            worker_loop(config, once=args.once)
+            return 0
+        if args.command == "studio":
+            import uvicorn
+            from .studio.api import create_app
+            if not 1024 <= args.port <= 65535:
+                raise ValueError("工作台端口必须在 1024–65535")
+            # Preflight DB/migration before launching the worker. No remote bind.
+            check = DB(config)
+            try:
+                check.bind_root()
+                if not check.one("SELECT version FROM schema_migrations WHERE version=2"):
+                    raise ValueError("请先运行 migrate 安装系列工作台表")
+            finally:
+                check.close()
+            child = None
+            try:
+                if not args.no_worker:
+                    command = [sys.executable, "-m", "mlvideo.cli"]
+                    if args.config:
+                        command += ["--config", str(Path(args.config).resolve())]
+                    child = subprocess.Popen(command + ["studio-worker"])
+                uvicorn.run(create_app(config), host="127.0.0.1", port=args.port, workers=1)
+            finally:
+                if child is not None and child.poll() is None:
+                    child.terminate()
+                    try:
+                        child.wait(timeout=20)
+                    except subprocess.TimeoutExpired:
+                        child.kill(); child.wait()
+            return 0
         if args.command == "doctor":
             result = doctor(config)
             print(json.dumps(result, ensure_ascii=False, default=str))

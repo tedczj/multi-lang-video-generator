@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Queued/running/completed cards update without clicking refresh",
+    "Polling preserves unsaved segment drafts and open review forms",
+    "Automatic rerender preserves the custom voice-preview text",
+    "Non-JSON 500 is readable and the workspace recovers automatically"
+  ],
+  "console_errors": [],
+  "boundary": "Real HTTP/UI with explicit job/outage network fixtures"
+}

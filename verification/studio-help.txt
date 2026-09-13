@@ -1,0 +1,6 @@
+usage: cli.py studio [-h] [--port PORT] [--no-worker]
+
+options:
+  -h, --help   show this help message and exit
+  --port PORT
+  --no-worker  只启动页面；另行运行 studio-worker

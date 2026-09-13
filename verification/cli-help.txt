@@ -1,0 +1,11 @@
+usage: cli.py [-h] [--config CONFIG]
+              {studio,studio-worker,doctor,migrate,ingest,download,run,pipeline,candidate,retry,recover,select,history,status,backup,restore} ...
+
+positional arguments:
+  {studio,studio-worker,doctor,migrate,ingest,download,run,pipeline,candidate,retry,recover,select,history,status,backup,restore}
+    studio              本机系列/角色配音管理页
+    studio-worker       持久队列单进程执行器
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG

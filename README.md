@@ -4,6 +4,25 @@ Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水�
 
 第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期已接入真实翻译、ASR/VAD、CosyVoice3 与双语候选成片链路，见 [整体验证与问题记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。正式视频集和人工质量验收仍未完成；第三期待开发。
 
+
+## 系列角色配音工作台（本次增量）
+
+新增本机管理页：系列/角色库、原声分段试听、手工与批量标注、参考音频批准、固定声音配置、中文测试与发布、版本化逐句配音、音频选用和候选成片。继续使用当前 MySQL 与 CosyVoice3，不引入第二套生产数据库，不需要 npm 或前端 CDN。
+
+- [升级与完整使用步骤](docs/STUDIO_QUICKSTART_ZH.md)
+- [基于当前源码的设计](docs/SERIES_STUDIO_DESIGN_ZH.md)
+- [实现与测试边界](verification/STUDIO_IMPLEMENTATION_REPORT_ZH.md)
+
+```bash
+# 先按升级文档使用旧代码备份；保留你原来的私有配置和数据目录。
+.venv/bin/python -m pip install -r requirements.studio.txt
+.venv/bin/python -m mlvideo.cli --config config/local-phase2-001.json migrate
+.venv/bin/python -m mlvideo.cli --config config/local-phase2-001.json studio
+# 浏览器打开 http://127.0.0.1:8787
+```
+
+等待人工时不占着模型 worker；新生成不覆盖旧结果。自动跨集声纹分类尚未接入，当前局部分组建议不能当作已校准身份判断。源码附带的协议测试与提示音媒体测试不代表真实英文→中文克隆质量已经验收。
+
 ## 本地启动
 
 需要 Python 3.11+、Node.js 22+（YouTube JavaScript 解析）、Docker Desktop、FFmpeg/ffprobe（FFV1、libx264、AAC）。使用项目虚拟环境：
@@ -70,3 +89,5 @@ YouTube 下载使用锁定版本的 yt-dlp/EJS 和 Node。若 Python.org 安装�
 2026-09-12 收尾更新：已补入说话人/参考音的哈希绑定复核、逐条音色验收检查和参考音污染防护，87 项回归通过。整片分组、参考音与听感仍未通过，产物盘容量也不足以支撑当前整片估算；Phase 2 保持 INCOMPLETE，详见 [收尾报告与试听材料](docs/verification/PHASE_2_CLOSEOUT_ZH.md)。
 
 已接入字幕清点/提取、Whisper+Silero VAD、归句、Codex 合批翻译、参考音提取、CosyVoice3、译音质检、双语布局与真实音频成片。`candidate` 串行运行并保存每批/每句不可变血缘；`verify_phase.py --phase 2` 保存实际运行与未完成项。正式视频集、自动多人识别和人工质量验收仍有缺项，不能视为第二期正式通过。部署与命令见 [workers/README.md](workers/README.md)，当前证据和问题见 [整体验证记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。
+
+2026-09-14 工作台已基于当前分支校对，补入自动刷新、免姓名确认、数据库断线重连和磁盘余量保护；最终回归 117 项通过。见 [审查记录](docs/STUDIO_REVIEW_20260914_ZH.md) 与 [测试摘要](verification/studio-review-20260914/README.md)。真实音色及整片验收仍未完成。

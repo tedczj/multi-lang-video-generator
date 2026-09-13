@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Live Uvicorn HTML via loopback HTTP",
+    "Live HTTP write without CSRF token rejected",
+    "Live HTTP authenticated catalogue mutation",
+    "Live HTTP PCM byte-range response",
+    "Live HTTP cross-origin request rejected"
+  ],
+  "database": "SQLite SQL-protocol test adapter, NOT MySQL",
+  "transport": "Real local Uvicorn + httpx HTTP; browser navigation unavailable under managed policy"
+}

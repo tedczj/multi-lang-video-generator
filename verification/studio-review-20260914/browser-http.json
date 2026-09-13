@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Create character through the real browser/API",
+    "Select role, edit translation, save versioned annotation",
+    "Real WAV streaming playback / duration",
+    "Client-side filtering without losing edited rows",
+    "Split creates a new revision and refreshes the review list",
+    "Character references and voice-profile controls render"
+  ],
+  "console_errors": [],
+  "browser": "system Chromium, Playwright",
+  "data": "EXPLICIT GENERATED TONE/UI FIXTURES; NOT real speech or MySQL"
+}

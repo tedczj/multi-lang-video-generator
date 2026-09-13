@@ -266,6 +266,41 @@ STRATEGIES = {
 }
 
 
+# Versioned manual-review studio strategies. Existing node meanings stay unchanged.
+STRATEGIES.update({
+    ("N06", "studio_captions"): (
+        {"speech": "SpeechTrack.v1", "inventory": "SubtitleInventory.v1"},
+        {"captions": "CaptionTrack.v1"}, {},
+    ),
+    ("N08", "studio_utterances"): (
+        {"audio": "Audio.v1", "speech": "SpeechTrack.v1", "canonical": "CanonicalMedia.v1",
+         "captions": "CaptionTrack.v1", "vad": "Binary.v1"},
+        {"utterances": "UtteranceSet.v1", "review": "Binary.v1"},
+        {"items": [], "reviewer": "", "reason": "", "require_coverage": True},
+    ),
+    ("N09", "studio_translation"): (
+        {"utterances": "UtteranceSet.v1"},
+        {"translation": "TranslationSet.v1", "review": "Binary.v1"},
+        {"batch_index": 0, "items": [], "reviewer": "", "reason": ""},
+    ),
+    ("N09", "studio_sample"): (
+        {"reference": "VoiceReference.v1"}, {"translation": "TranslationSet.v1"},
+        {"unit_id": "", "text": ""},
+    ),
+    ("N10", "studio_reference"): (
+        {"audio": "Audio.v1", "speech": "SpeechTrack.v1"},
+        {"reference": "VoiceReference.v1", "audio": "Audio.v1", "review": "Binary.v1"},
+        {"start_sample": 0, "end_sample": 0, "transcript": "", "character_id": "",
+         "annotations": [], "reviewer": "", "reason": ""},
+    ),
+    ("N10", "studio_import_reference"): (
+        {"reference": "VoiceReference.v1", "audio": "Audio.v1"},
+        {"reference": "VoiceReference.v1", "audio": "Audio.v1", "receipt": "Binary.v1"},
+        {"profile_id": "", "profile_sha512": "", "purpose": "dubbing"},
+    ),
+})
+
+
 def strategy(node, name):
     try:
         return STRATEGIES[(node, name)]

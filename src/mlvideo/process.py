@@ -5,12 +5,24 @@ import signal
 import socket
 import subprocess
 import sys
+import shutil
+import time
 import psutil
 from .util import atomic_json, read_json, now
 
 
+DISK_RESERVE_BYTES = 1024 ** 3
+
+
+def require_disk_space(work):
+    free = shutil.disk_usage(work).free
+    if free < DISK_RESERVE_BYTES:
+        raise RuntimeError(f"磁盘可用空间不足（剩余 {free / 1024**3:.2f} GiB），已停止任务以保留 1 GiB 系统空间；请释放空间后手动重试")
+
+
 def run_worker(argv, work, timeout):
     work.mkdir(parents=True, exist_ok=True)
+    require_disk_space(work)
     runtime = work.parent / "runtime.json"
     env = {
         k: v
@@ -48,7 +60,17 @@ def run_worker(argv, work, timeout):
             atomic_json(runtime, record)
             p.stdin.write(b"G")
             p.stdin.close()
-            rc = p.wait(timeout=timeout)
+            deadline = time.monotonic() + timeout
+            while True:
+                require_disk_space(work)
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                try:
+                    rc = p.wait(timeout=min(1, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
             if rc:
                 raise RuntimeError(f"Worker exit {rc}; see {work / 'stderr.log'}")
         finally:

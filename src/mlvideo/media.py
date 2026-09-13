@@ -4,6 +4,7 @@ import json
 import math
 from math import ceil
 import subprocess
+import shutil
 import wave
 from fractions import Fraction as F
 from .timeline import quantize, verify
@@ -206,6 +207,12 @@ def normalize(source, info, work, fps_override=None):
     tail_frames = count - base_count - lead_frames
     samples = quantize(F(count) / fps)
     if lead_frames or tail_frames:
+        # Padding writes a second lossless video before replacing the first.
+        # Refuse this peak allocation before it can exhaust the host/MySQL disk.
+        from .process import DISK_RESERVE_BYTES
+        required = int(video.stat().st_size * 1.2) + DISK_RESERVE_BYTES
+        if shutil.disk_usage(work).free < required:
+            raise RuntimeError(f"视频补帧需要至少 {required / 1024**3:.2f} GiB 可用空间（包含临时副本与系统保留空间）；请释放空间后手动重试")
         padded = work / "padded.mkv"
         command(
             [
