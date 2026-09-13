@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 import zipfile
+from itertools import pairwise
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -31,7 +32,12 @@ def reference_frames(reference):
     if "segments" not in reference:
         return reference["end_sample"] - reference["start_sample"]
     segments = reference["segments"]
-    if not segments or any(s["end_sample"] <= s["start_sample"] for s in segments):
+    if (
+        not segments
+        or any(not 0 <= s["start_sample"] < s["end_sample"] for s in segments)
+        or any(b["start_sample"] < a["end_sample"] for a, b in pairwise(segments))
+        or reference["gap_samples"] < 0
+    ):
         raise ValueError("Invalid pooled reference source intervals")
     count = sum(s["end_sample"] - s["start_sample"] for s in segments) + reference[
         "gap_samples"

@@ -5,12 +5,20 @@ import math
 import re
 import wave
 import zipfile
+from itertools import pairwise
 
 from .util import atomic_json, digest, sha512
 
 
 def collect_candidates(speech, track, min_seconds=6, max_seconds=20):
     turns = track["turns"]
+    for rows in (speech["segments"], turns):
+        if any(not 0 <= r["start_sample"] < r["end_sample"] for r in rows):
+            raise ValueError("Invalid speaker/speech interval")
+        if rows is speech["segments"] and any(
+            b["start_sample"] < a["start_sample"] for a, b in pairwise(rows)
+        ):
+            raise ValueError("Speaker/speech intervals must be ordered")
     groups = []
     discarded = []
     for segment in speech["segments"]:
@@ -63,6 +71,7 @@ def collect_candidates(speech, track, min_seconds=6, max_seconds=20):
         if merge:
             groups[-1]["end_sample"] = end
             groups[-1]["text"] += " " + text
+            groups[-1]["speech_ids"].append(segment["id"])
         else:
             groups.append(
                 {
@@ -70,15 +79,26 @@ def collect_candidates(speech, track, min_seconds=6, max_seconds=20):
                     "start_sample": start,
                     "end_sample": end,
                     "text": text,
+                    "speech_ids": [segment["id"]],
                 }
             )
-    return [
-        g
-        for g in groups
-        if min_seconds * 48000
-        <= g["end_sample"] - g["start_sample"]
-        <= max_seconds * 48000
-    ], discarded
+    accepted = []
+    for group in groups:
+        if (
+            min_seconds * 48000
+            <= group["end_sample"] - group["start_sample"]
+            <= max_seconds * 48000
+        ):
+            accepted.append(group)
+        else:
+            discarded.extend(
+                {
+                    "speech_id": i,
+                    "reason": "Reference duration outside candidate limits",
+                }
+                for i in group["speech_ids"]
+            )
+    return accepted, discarded
 
 
 def build_bank(audio, speech, track, refs, work):
@@ -88,15 +108,23 @@ def build_bank(audio, speech, track, refs, work):
     ):
         raise ValueError("Speaker bank source audio binding mismatch")
     groups, discarded = collect_candidates(speech, track, min_seconds=1)
-    groups = [
-        g
-        for g in groups
-        if not re.search(
+    filtered = []
+    for g in groups:
+        if re.search(
             r"\b(said|asked|thought|wondered|yelled|shouted|gasped|cried|exclaimed|whispered|replied|called|muttered|screamed|commanded)\b",
             g["text"],
             re.IGNORECASE,
-        )
-    ]
+        ):
+            discarded.extend(
+                {
+                    "speech_id": i,
+                    "reason": "Narration/dialogue mixing risk in transcript; listening required",
+                }
+                for i in g["speech_ids"]
+            )
+        else:
+            filtered.append(g)
+    groups = filtered
     speakers = []
     with wave.open(str(audio)) as src:
         if (src.getframerate(), src.getnchannels(), src.getsampwidth()) != (
@@ -105,6 +133,11 @@ def build_bank(audio, speech, track, refs, work):
             2,
         ):
             raise ValueError("Speaker bank requires 48 kHz stereo PCM16")
+        if any(
+            r["end_sample"] > src.getnframes()
+            for r in speech["segments"] + track["turns"]
+        ):
+            raise ValueError("Speaker/speech interval exceeds source audio")
         for speaker in sorted({t["speaker_id"] for t in track["turns"]}):
             pool = [g for g in groups if g["speaker_id"] == speaker]
             # Keep short clean turns as a pool, with all original intervals explicit.
@@ -113,13 +146,30 @@ def build_bank(audio, speech, track, refs, work):
                 item = {k: g[k] for k in ("start_sample", "end_sample", "text")}
                 item["start_sample"] = max(0, item["start_sample"] - 9600)
                 item["end_sample"] = min(src.getnframes(), item["end_sample"] + 19200)
-                if not any(
+                contaminated = any(
                     t["speaker_id"] != speaker
                     and t["start_sample"] < item["end_sample"]
                     and t["end_sample"] > item["start_sample"]
                     for t in track["turns"]
+                ) or any(
+                    s["id"] not in g["speech_ids"]
+                    and s["start_sample"] < item["end_sample"]
+                    and s["end_sample"] > item["start_sample"]
+                    for s in speech["segments"]
+                )
+                if (
+                    not contaminated
+                    and item["end_sample"] - item["start_sample"] <= 20 * 48000
                 ):
                     padded.append(item)
+                else:
+                    discarded.extend(
+                        {
+                            "speech_id": i,
+                            "reason": "Padding includes other/untranscribed speech or exceeds duration limit",
+                        }
+                        for i in g["speech_ids"]
+                    )
             alternatives = [
                 [g] for g in padded if g["end_sample"] - g["start_sample"] >= 6 * 48000
             ]

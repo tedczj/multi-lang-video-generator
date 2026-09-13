@@ -263,12 +263,10 @@ def run(request, work, output):
                 "-nostdin",
                 "-v",
                 "error",
-                "-ss",
-                str(seek),
+                *(["-ss", str(seek)] if seek > 0 else []),
                 "-i",
                 str(src("source")),
-                "-ss",
-                str(start - seek),
+                *(["-ss", str(start - seek)] if start > seek else []),
                 "-t",
                 str(end - start),
                 "-map",
@@ -514,6 +512,19 @@ def run(request, work, output):
             check=True,
         )
         return read_json(work / "worker-result.json")["artifacts"]
+    elif node == "N08" and request["strategy_id"] == "reviewed_speech":
+        from .speaker_review import reviewed_speech
+
+        with wave.open(str(src("audio"))) as audio:
+            if (audio.getframerate(), audio.getnchannels(), audio.getsampwidth()) != (48000, 2, 2):
+                raise ValueError("Speaker review requires 48 kHz stereo PCM16")
+            speech, speakers = reviewed_speech(
+                val("speech"), val("speakers"), read_json(src("vad")),
+                {k: refs[k][0] for k in refs}, audio.getnframes(), p["decision"],
+            )
+        save("speech", "speech.json", "SpeechTrack.v1", speech)
+        save("speakers", "speakers.json", "SpeakerTrack.v1", speakers)
+        save("review", "review.json", "Binary.v1", p["decision"])
     elif node == "N08" and request["strategy_id"] == "caption_pages":
         from .caption_pages import build_pages
 
@@ -583,6 +594,10 @@ def run(request, work, output):
         ):
             raise ValueError("Selected speaker bank belongs to another source")
         selected = select_reference(bank, p["speaker_id"], p["candidate_id"])
+        if p.get("review") is not None:
+            from .speaker_review import review_reference
+
+            review_reference(selected, refs["bank"][0], p["review"])
         with wave.open(str(src("audio"))) as audio:
             write_reference(
                 audio,

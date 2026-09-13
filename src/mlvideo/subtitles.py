@@ -109,6 +109,16 @@ def review(render_ref, render_qa, audio_reports, layout, human=None):
     )
     checks.extend(
         {
+            "id": f"{key}_{i}",
+            "status": "REVIEW",
+            "required": True,
+            "reason": "Listen to this exact raw clip and its bound speaker reference",
+        }
+        for i in range(len(audio_reports))
+        for key in ("voice_identity", "naturalness", "leading_noise", "tail_integrity", "spoken_content")
+    )
+    checks.extend(
+        {
             "id": key,
             "status": "REVIEW",
             "required": True,

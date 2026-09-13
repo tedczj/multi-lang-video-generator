@@ -65,4 +65,8 @@ YouTube 下载使用锁定版本的 yt-dlp/EJS 和 Node。若 Python.org 安装�
 
 ## 第二期候选成片
 
+2026-09-13 第一轮已实际执行：13 GB 预算内完成前 117 秒预处理、Opus 截取修复、参考音对照及两组 12 条中文试听；88 项回归通过。双语候选成片尚未生成，待音色/分组复核，见 [第一轮报告与试听入口](docs/verification/PHASE_2_ROUND1_20260913_ZH.md)。
+
+2026-09-12 收尾更新：已补入说话人/参考音的哈希绑定复核、逐条音色验收检查和参考音污染防护，87 项回归通过。整片分组、参考音与听感仍未通过，产物盘容量也不足以支撑当前整片估算；Phase 2 保持 INCOMPLETE，详见 [收尾报告与试听材料](docs/verification/PHASE_2_CLOSEOUT_ZH.md)。
+
 已接入字幕清点/提取、Whisper+Silero VAD、归句、Codex 合批翻译、参考音提取、CosyVoice3、译音质检、双语布局与真实音频成片。`candidate` 串行运行并保存每批/每句不可变血缘；`verify_phase.py --phase 2` 保存实际运行与未完成项。正式视频集、自动多人识别和人工质量验收仍有缺项，不能视为第二期正式通过。部署与命令见 [workers/README.md](workers/README.md)，当前证据和问题见 [整体验证记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。

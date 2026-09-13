@@ -12,6 +12,82 @@ from mlvideo.timeline import plan
 from mlvideo.util import read_json, sha512
 
 
+def test_zero_start_excerpt_preserves_opus_pcm(tmp_path):
+    from mlvideo.phase2 import run
+
+    source = tmp_path / "opus.mkv"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            "testsrc2=size=64x48:rate=30:duration=3",
+            "-f",
+            "lavfi",
+            "-i",
+            "sine=frequency=440:sample_rate=48000:duration=3",
+            "-c:v",
+            "libx264",
+            "-c:a",
+            "libopus",
+            str(source),
+        ],
+        check=True,
+    )
+    expected = tmp_path / "direct.wav"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-i",
+            str(source),
+            "-t",
+            "2",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+            "-c:a",
+            "pcm_s16le",
+            str(expected),
+        ],
+        check=True,
+    )
+    work = tmp_path / "excerpt"
+    work.mkdir()
+    run(
+        {
+            "node": "N04",
+            "strategy_id": "excerpt",
+            "params": {"start_seconds": 0, "end_seconds": 2, "height": 144},
+            "inputs": {
+                "source": [
+                    {
+                        "path": str(source),
+                        "artifact_id": "source",
+                        "sha512": sha512(source),
+                    }
+                ]
+            },
+        },
+        work,
+        lambda *args: None,
+    )
+    canonical = read_json(work / "canonical.json")
+    with wave.open(str(expected)) as wav:
+        count = wav.getnframes()
+        pcm = wav.readframes(count)
+    with wave.open(str(work / "canonical.wav")) as wav:
+        wav.setpos(canonical["audio_start_sample"])
+        actual = wav.readframes(canonical["audio_payload_samples"])
+    assert canonical["audio_payload_samples"] == count
+    assert actual == pcm
+
+
 @pytest.mark.parametrize("footer", [0, 16])
 def test_real_dub_pcm_and_dynamic_overlay(tmp_path, footer):
     source = ROOT / "tests/fixtures/generated/cfr.mkv"

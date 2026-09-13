@@ -116,6 +116,16 @@ OCR 私有部署可固定 `request_options` 中的 textDetLimitSideLen、textDet
 
 `N10/speaker_bank` 按声学分组收集参考候选，保存每段原音频区间与 ASR 转录。优先连续片段，缺少足够长的连续片段时可构建带明确间隔的候选池；`VoiceReference.v2` 记录全部来源区间、间隔样本数和最终采样数。`N10/from_speaker_bank` 重新构建并核对候选哈希；参考不足不能克隆。`N11/cosyvoice3_from_bank` 消费该 v2 引用并执行真正的原版 zero-shot 合成。
 
+### 说话人与参考音复核
+
+`N08/reviewed_speech` 输入 `audio`、`speech`、`speakers`、`vad` 四个 artifact。`decision` 包含四个 `<port>_sha512`、具名 `reviewer`、完整 `segments`（start_sample/end_sample/speaker_id/text）和三项 checks：`speaker_identity`、`speech_boundaries`、`transcript`；每项必须有 PASS 与具体 reason。必须保护 ASR、VAD、diarization 检测到的全部人声。原始估计保留，新执行返回 `speech`、`speakers`、`review`，再用这两个已复核分析输出构建新的 N10 bank。
+
+`candidate` 可提供 `speaker_bank` 对象，包含 `bank`、`speech`、`review` artifact ID，以及 `references` 数组；speech/review 必须来自同一次 N08 reviewed_speech，bank 必须使用该次 speech/speakers。源音频必须与本轮规范化 PCM 哈希完全一致。每条 references 包含 speaker_id、candidate_id、review；review 必须绑定 bank_sha512、candidate_id、speaker_id、audio_sha512，具名确认 `speaker_identity`、`transcript`、`clean_reference`、`complete_words` 四项。候选流程会在翻译/合成前验证参考音。既有 `references` 的手动短预览路径保留。
+
+用 `scripts/prepare_speaker_review.py --config CONFIG --asset SHA512 --analysis ANALYSIS_RESULT_JSON --diarization DIARIZATION_RESULT_JSON --bank BANK_RESULT_JSON --out NEW_DIRECTORY` 导出分组试听包及未批准的 JSON 模板。analysis 文件包含 audio 和 speech 两个 engine 结果；其他两个文件分别为相应 engine 结果。所有模板仅供实际复核，不能自动填写 PASS。
+
+N19 每条音频新增 `voice_identity_i`、`naturalness_i`、`leading_noise_i`、`tail_integrity_i`、`spoken_content_i`。旧三段预览方向的确认不能替代新译音/整片的这些具体决定。当前执行边界见 [收尾报告](../docs/verification/PHASE_2_CLOSEOUT_ZH.md)。
+
 这些新接口的协议/采样检查不代表声学分组可靠性已经通过。当前动画全片的分组仍随阈值和预处理变化，参考音库保持 REVIEW 草稿，不能自动当作已确认人物音库。CosyVoice3 主干及原版前端精度已核对，不是 MLX 8-bit；Qwen MLX 8-bit 不再作为当前选型重点。
 
 

@@ -120,3 +120,27 @@ def test_pooled_metadata_cannot_hide_missing_or_extra_audio_frames():
     reference["frames"] = 30
     with pytest.raises(ValueError, match="frame count"):
         reference_frames(reference)
+
+
+def test_padding_cannot_include_words_missing_from_reference_transcript(tmp_path):
+    import array
+    import wave
+
+    from mlvideo.speaker_bank import build_bank
+
+    source = tmp_path / "source.wav"
+    with wave.open(str(source), "wb") as w:
+        w.setparams((2, 2, 48000, 0, "NONE", "not compressed"))
+        w.writeframes(array.array("h", [1000, -1000] * (12 * 48000)).tobytes())
+    speech = {"audio_artifact_id": "a", "segments": [segment("s1", 1, 8), segment("s2", 8.1, 9.1, "[Unclear words]")]}
+    track = {"source_audio_artifact_id": "a", "turns": [turn("one", 0, 12)]}
+    bank = build_bank(source, speech, track, {"audio": "a", "speech": "s", "speakers": "t"}, tmp_path)
+    assert bank["speakers"][0]["selected_candidate_id"] is None
+    assert any(d["speech_id"] == "s1" and "Padding" in d["reason"] for d in bank["discarded"])
+
+
+def test_pooled_reference_cannot_repeat_or_reorder_source_intervals():
+    from workers.cosyvoice_worker import reference_frames
+
+    with pytest.raises(ValueError, match="source intervals"):
+        reference_frames({"segments": [{"start_sample": 0, "end_sample": 20}, {"start_sample": 10, "end_sample": 30}], "gap_samples": 0, "frames": 40})

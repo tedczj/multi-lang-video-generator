@@ -77,13 +77,43 @@ def run_candidate(engine, asset, source_id, settings):
                 "stride_frames": settings.get("stride_frames", 25),
             },
         )
-        speech = run(
-            "speech",
-            "N07",
-            "whisper",
-            {"audio": c["audio"]},
-            {"annotation": settings.get("speech_annotation")},
-        )
+        bank_settings = settings.get("speaker_bank")
+        if bank_settings:
+            bank = value(bank_settings["bank"])
+            reviewed = value(bank_settings["speech"])
+            bank_speech = engine.artifact(bank_settings["speech"], asset)
+            bank_track = engine.artifact(bank["speaker_track_artifact_id"], asset)
+            review_ref = engine.artifact(bank_settings["review"], asset)
+            review_request = read_json(
+                engine.root
+                / engine.db.one(
+                    "SELECT request_path FROM executions WHERE id=%s",
+                    (review_ref["execution_id"],),
+                )["request_path"]
+            )
+            if (
+                review_request["node"] != "N08"
+                or review_request["strategy_id"] != "reviewed_speech"
+                or bank_speech["execution_id"] != review_ref["execution_id"]
+                or bank_track["execution_id"] != review_ref["execution_id"]
+                or bank["speech_artifact_id"] != bank_settings["speech"]
+                or reviewed["coverage_status"] != "PASS"
+                or reviewed["audio_artifact_id"] != bank["source_audio_artifact_id"]
+                or engine.artifact(bank["source_audio_artifact_id"], asset)["sha512"]
+                != engine.artifact(c["audio"], asset)["sha512"]
+            ):
+                raise ValueError(
+                    "Speaker bank requires reviewed grouping bound to this exact canonical PCM"
+                )
+            speech = {"speech": bank_settings["speech"]}
+        else:
+            speech = run(
+                "speech",
+                "N07",
+                "whisper",
+                {"audio": c["audio"]},
+                {"annotation": settings.get("speech_annotation")},
+            )
         utterances = run(
             "utterances",
             "N08",
@@ -96,6 +126,37 @@ def run_candidate(engine, asset, source_id, settings):
             {"text_source": settings.get("text_source", "speech")},
         )
         units = value(utterances["utterances"])["items"]
+        references = {}
+        reference_settings = settings.get("references", [])
+        if bank_settings:
+            reference_settings = bank_settings["references"]
+            if {r["speaker_id"] for r in reference_settings} != {
+                u["speaker_id"] for u in units
+            }:
+                raise ValueError(
+                    "Reviewed references must cover exactly the utterance speakers"
+                )
+        for i, reference in enumerate(reference_settings):
+            speaker = reference["speaker_id"]
+            if speaker in references:
+                raise ValueError("Duplicate speaker reference")
+            if bank_settings and reference.get("review") is None:
+                raise ValueError(
+                    "Speaker bank cloning requires reference listening review"
+                )
+            references[speaker] = run(
+                f"reference_{i}",
+                "N10",
+                "from_speaker_bank" if bank_settings else "reference",
+                {
+                    "audio": bank["source_audio_artifact_id"],
+                    "speech": speech["speech"],
+                    "bank": bank_settings["bank"],
+                }
+                if bank_settings
+                else {"audio": c["audio"], "speech": speech["speech"]},
+                reference,
+            )
         translated = []
         by_unit = {}
         for i, group in enumerate(batches(units)):
@@ -108,18 +169,6 @@ def run_candidate(engine, asset, source_id, settings):
             )
             translated.append(tr["translation"])
             by_unit.update({u["unit_id"]: tr["translation"] for u in group})
-        references = {}
-        for i, reference in enumerate(settings["references"]):
-            speaker = reference["speaker_id"]
-            if speaker in references:
-                raise ValueError("Duplicate speaker reference")
-            references[speaker] = run(
-                f"reference_{i}",
-                "N10",
-                "reference",
-                {"audio": c["audio"], "speech": speech["speech"]},
-                reference,
-            )
         raw_clips = []
         clips = []
         audios = []
@@ -136,7 +185,7 @@ def run_candidate(engine, asset, source_id, settings):
             raw = run(
                 f"tts_{i}",
                 "N11",
-                "cosyvoice3_zero_shot",
+                "cosyvoice3_from_bank" if bank_settings else "cosyvoice3_zero_shot",
                 {
                     "translation": by_unit[u["unit_id"]],
                     "reference": reference["reference"],
@@ -157,6 +206,7 @@ def run_candidate(engine, asset, source_id, settings):
             unit_evidence.append(
                 {
                     "unit_id": u["unit_id"],
+                    "speaker_id": speaker,
                     "source_text": u["text"],
                     "translation": by_unit[u["unit_id"]],
                     "reference": reference["reference"],

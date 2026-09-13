@@ -31,6 +31,11 @@ MULTI_INPUT_PORTS = {
 
 # Ports and output schemas are fixed; strategy parameters cannot replace worker argv.
 STRATEGIES = {
+    ("N08", "reviewed_speech"): (
+        {"audio": "Audio.v1", "speech": "SpeechTrack.v1", "speakers": "SpeakerTrack.v1", "vad": "Binary.v1"},
+        {"speech": "SpeechTrack.v1", "speakers": "SpeakerTrack.v1", "review": "Binary.v1"},
+        {"decision": None},
+    ),
     ("N08", "caption_pages"): (
         {
             "speech": "SpeechTrack.v1",
@@ -53,7 +58,7 @@ STRATEGIES = {
     ("N10", "from_speaker_bank"): (
         {"audio": "Audio.v1", "speech": "SpeechTrack.v1", "bank": "SpeakerBank.v1"},
         {"reference": "VoiceReference.v2", "audio": "Audio.v1"},
-        {"speaker_id": "", "candidate_id": ""},
+        {"speaker_id": "", "candidate_id": "", "review": None},
     ),
     ("N07", "speaker_diarization"): (
         {"audio": "Audio.v1"},
