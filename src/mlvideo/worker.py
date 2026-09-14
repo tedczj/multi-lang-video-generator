@@ -123,8 +123,12 @@ def main():
         atomic_json(work / "probe.json", media.probe(source("source"), work))
         output("probe", "probe.json", "MediaProbe.v1", "probe")
     elif node == "N04":
-        media.normalize(source("source"), read_json(source("probe")), work, p["fps"])
-        output("video", "canonical.mkv", "Video.v1", "canonical_video")
+        if r["strategy_id"] == "original":
+            media.preserve_source(source("source"), read_json(source("probe")), work)
+            output("video", "original.bin", "Video.v1", "original_video")
+        else:
+            media.normalize(source("source"), read_json(source("probe")), work, p["fps"])
+            output("video", "canonical.mkv", "Video.v1", "canonical_video")
         output("audio", "canonical.wav", "Audio.v1", "canonical_audio")
         output("canonical", "canonical.json", "CanonicalMedia.v1", "canonical")
     elif node == "N16":

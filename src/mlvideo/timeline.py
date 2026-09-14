@@ -1,5 +1,6 @@
 from fractions import Fraction as F
 from math import ceil
+from bisect import bisect_right
 
 
 def quantize(t, sr=48000):
@@ -7,11 +8,31 @@ def quantize(t, sr=48000):
     return (2 * x.numerator + x.denominator) // (2 * x.denominator)
 
 
+def frame_sample(clock, frame):
+    if "frame_samples" in clock:
+        return clock["frame_samples"][frame]
+    return quantize(F(frame) / F(clock["fps"]))
+
+
+def cut_frame(clock, sample):
+    if "frame_samples" in clock:
+        return bisect_right(clock["frame_samples"], sample) - 1
+    return int(F(sample, 48000) * F(clock["fps"]))
+
+
 def plan(canonical, utterances):
     fps = F(canonical["fps"])
     sr = canonical["sample_rate"]
     total = canonical["source_frames"]
     samples = canonical["source_samples"]
+    native = "frame_samples" in canonical
+
+    def time_at(frame):
+        return F(frame_sample(canonical, frame), sr) if native else F(frame) / fps
+
+    def added(delay):
+        return quantize(F(delay) / fps) if native else quantize(F(total + delay) / fps) - samples
+
     if fps <= 0 or sr != 48000 or total < 1:
         raise ValueError("Invalid canonical clock")
     if len({u["id"] for u in utterances}) != len(utterances):
@@ -27,26 +48,27 @@ def plan(canonical, utterances):
         next_start = (
             F(utterances[i + 1]["start_sample"], sr)
             if i + 1 < len(utterances)
-            else F(total) / fps
+            else time_at(total)
         )
         cut = u["safe_cut_frame"]
         # The supplied cut must be the LAST safe integral boundary.
         if (
             type(cut) is not int
-            or cut != min(int(next_start * fps), u.get("visual_cut_limit_frame", total))
-            or not previous_end <= start < end <= F(cut) / fps <= next_start
-            or cut > total
+            or cut != min(cut_frame(canonical, quantize(next_start)) if native else int(next_start * fps), u.get("visual_cut_limit_frame", total))
+            or not 0 <= cut <= total
+            or not previous_end <= start < end <= time_at(cut) <= next_start
         ):
             raise ValueError("Overlap or no last safe whole-frame cut; regroup/review")
         n = u["dub_samples"]
         if type(n) is not int or n <= 0:
             raise ValueError("Dub must contain positive sample frames")
-        added_samples = quantize(F(total + delay) / fps) - samples
+        added_samples = added(delay)
         ds = u["end_sample"] + added_samples + sr
-        hold = max(0, ceil((F(ds + n + sr, sr) - F(cut + delay) / fps) * fps))
+        cut_time = time_at(cut) + (F(added_samples, sr) if native else F(delay) / fps)
+        hold = max(0, ceil((F(ds + n + sr, sr) - cut_time) * fps))
         # Absolute boundaries keep rounding errors bounded; never round segments independently.
         while (
-            quantize(F(cut) / fps) + quantize(F(total + delay + hold) / fps) - samples
+            quantize(time_at(cut)) + added(delay + hold)
             < ds + n + sr
         ):
             hold += 1
@@ -104,15 +126,11 @@ def plan(canonical, utterances):
     for p in pieces:
         p["output_start_sample"] = sample_cursor
         if p["kind"] == "source":
-            sample_cursor += quantize(F(p["source_end_frame"]) / fps) - quantize(
-                F(p["source_start_frame"]) / fps
-            )
+            sample_cursor = quantize(time_at(p["source_end_frame"])) + added(added_frames)
         else:
             added_frames += p["output_end_frame"] - p["output_start_frame"]
             sample_cursor = (
-                quantize(F(p["at_source_frame"]) / fps)
-                + quantize(F(total + added_frames) / fps)
-                - samples
+                quantize(time_at(p["at_source_frame"])) + added(added_frames)
             )
         p["output_end_sample"] = sample_cursor
     result = {
@@ -121,12 +139,26 @@ def plan(canonical, utterances):
         "source_frames": total,
         "source_samples": samples,
         "output_frames": total + delay,
-        "output_samples": quantize(F(total + delay) / fps),
+        "output_samples": samples + added(delay),
         "pieces": pieces,
         "dubs": dubs,
         "utterances": units,
         "quality_status": "REVIEW",
     }
+    if native:
+        output_pts = []
+        held = 0
+        for p in pieces:
+            if p["kind"] == "source":
+                output_pts.extend(frame_sample(canonical, i) + added(held)
+                                  for i in range(p["source_start_frame"], p["source_end_frame"]))
+            else:
+                count = p["output_end_frame"] - p["output_start_frame"]
+                output_pts.extend(frame_sample(canonical, p["at_source_frame"]) + added(held + i)
+                                  for i in range(count))
+                held += count
+        result["frame_samples"] = output_pts + [result["output_samples"]]
+        result["source_frame_samples"] = canonical["frame_samples"]
     verify(result)
     return result
 
@@ -154,9 +186,15 @@ def verify(t):
     if (
         src != t["source_frames"]
         or out != t["output_frames"]
-        or t["output_samples"] != quantize(F(out) / fps)
+        or t["output_samples"] != (t["frame_samples"][-1] if "frame_samples" in t else quantize(F(out) / fps))
     ):
         raise ValueError("Incomplete media coverage")
+    if "frame_samples" in t:
+        for key, count, end in (("frame_samples", out, t["output_samples"]),
+                                ("source_frame_samples", src, t["source_samples"])):
+            pts = t[key]
+            if len(pts) != count + 1 or pts[0] < 0 or pts[-1] != end or any(b <= a for a, b in zip(pts, pts[1:])):
+                raise ValueError("Invalid original frame timestamps")
     for i, (u, d) in enumerate(zip(t["utterances"], t["dubs"], strict=True)):
         following = (
             t["utterances"][i + 1]["output_start_sample"]

@@ -376,6 +376,13 @@ def create_app(config, db_factory=None, allowed_hosts=None):
     def media(identity: str, cat=Depends(catalogue)):
         ref = media_ref(cat, identity)
         mime = "audio/wav" if ref["schema_id"] == "Audio.v1" else ("video/mp4" if ref["path"].endswith(".mp4") else "video/x-matroska")
+        if ref["schema_id"] == "Video.v1" and ref["path"].endswith("original.bin"):
+            with Path(ref["path"]).open("rb") as source:
+                header = source.read(128)
+            if header[4:8] == b"ftyp":
+                mime = "video/mp4"
+            elif b"\x42\x82\x84webm" in header:
+                mime = "video/webm"
         return FileResponse(ref["path"], media_type=mime, headers={"ETag": '"' + ref["sha512"] + '"'})
 
     @app.api_route("/api/audio/{identity}/clip", methods=["GET", "HEAD"])

@@ -46,6 +46,8 @@ def caption_output_sample(timeline, source_frame):
             frame = (
                 piece["output_start_frame"] + source_frame - piece["source_start_frame"]
             )
+            if "frame_samples" in timeline:
+                return timeline["frame_samples"][frame]
             return quantize(Fraction(frame) / Fraction(timeline["fps"]))
     raise ValueError("Source caption frame has no output mapping")
 
@@ -238,8 +240,8 @@ def run(request, work, output):
         from fontTools.ttLib import TTFont
 
         table = TTFont(str(work / "font.bin"), fontNumber=0).getBestCmap()
-        info = media.probe(src("video"), work, False)["streams"][0]
-        width, height = info["width"], info["height"]
+        info = next(s for s in media.probe(src("video"), work, False)["streams"] if s["codec_type"] == "video")
+        width, height = media.video_geometry(info)
         preserve_english = request["params"].get("preserve_source_english", False)
         footer = request["params"].get("footer_height", 0) if preserve_english else 0
         if type(footer) is not int or footer < 0 or footer % 2:
@@ -380,8 +382,8 @@ def run(request, work, output):
         dubs = {r["sha512"]: Path(r["path"]) for r in refs["dubs"]}
         if set(dubs) != {d["audio_sha512"] for d in timeline["dubs"]}:
             raise ValueError("Dub audio hashes do not match timeline")
-        info = media.probe(src("video"), work, False)["streams"][0]
-        if (info["width"], info["height"]) != (layout["width"], layout["height"]):
+        info = next(s for s in media.probe(src("video"), work, False)["streams"] if s["codec_type"] == "video")
+        if media.video_geometry(info) != (layout["width"], layout["height"]):
             raise ValueError("Layout/video geometry mismatch")
         with zipfile.ZipFile(src("overlays")) as z:
             overlays = [

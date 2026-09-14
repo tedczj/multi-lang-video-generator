@@ -1,13 +1,10 @@
 """Preview units grounded in source caption pages, with ASR/VAD cut protection."""
 
-from fractions import Fraction as F
-
-from .timeline import quantize
+from .timeline import cut_frame, frame_sample
 from .util import digest
 
 
 def build_pages(speech, captions, vad, canonical, refs, pages):
-    fps = F(canonical["fps"])
     total = canonical["source_frames"]
     frames = {}
     for cue in captions["cues"]:
@@ -29,7 +26,7 @@ def build_pages(speech, captions, vad, canonical, refs, pages):
             or not previous <= start < end <= total
         ):
             raise ValueError("Caption pages overlap, reorder or exceed the video")
-        a, b = quantize(F(start) / fps), quantize(F(end) / fps)
+        a, b = frame_sample(canonical, start), frame_sample(canonical, end)
         matched = []
         boxes = []
         for frame, cues in frames.items():
@@ -93,12 +90,12 @@ def build_pages(speech, captions, vad, canonical, refs, pages):
         raise ValueError("VAD found speech outside the selected caption pages")
     for i, u in enumerate(units):
         next_frame = (
-            int(F(units[i + 1]["start_sample"], 48000) * fps)
+            cut_frame(canonical, units[i + 1]["start_sample"])
             if i + 1 < len(units)
             else total
         )
         u["safe_cut_frame"] = min(u["caption_end_frame"], next_frame)
-        if F(u["end_sample"], 48000) > F(u["safe_cut_frame"]) / fps:
+        if u["safe_cut_frame"] < 0 or u["end_sample"] > frame_sample(canonical, u["safe_cut_frame"]):
             raise ValueError(
                 "No safe integral cut before the source caption disappears"
             )

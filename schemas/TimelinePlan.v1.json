@@ -35,6 +35,20 @@
     },
     "quality_status": {
       "const": "REVIEW"
+    },
+    "frame_samples": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "source_frame_samples": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
     }
   },
   "required": [
@@ -49,5 +63,13 @@
     "utterances",
     "quality_status"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "dependentRequired": {
+    "frame_samples": [
+      "source_frame_samples"
+    ],
+    "source_frame_samples": [
+      "frame_samples"
+    ]
+  }
 }

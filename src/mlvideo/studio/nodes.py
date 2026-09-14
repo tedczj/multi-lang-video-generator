@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import shutil
 import wave
-from fractions import Fraction
 from pathlib import Path
 
 from ..contracts import validate
 from ..speech import apply_annotation
 from ..translation import batches
+from ..timeline import cut_frame, frame_sample
 from ..util import atomic_json, read_json, sha512, digest
 
 
@@ -53,7 +53,7 @@ def run(request, work, output):
         rows = p["items"]
         if not rows or len({u["unit_id"] for u in rows}) != len(rows):
             raise ValueError("Empty/duplicate reviewed unit IDs")
-        count, fps = clock["source_samples"], Fraction(clock["fps"])
+        count = clock["source_samples"]
         if any(type(u[k]) is not int for u in rows for k in ("start_sample", "end_sample")):
             raise ValueError("Review boundaries must be integer PCM samples")
         if any(not 0 <= u["start_sample"] < u["end_sample"] <= count or not u["text"].strip() for u in rows):
@@ -70,8 +70,8 @@ def run(request, work, output):
         units = []
         for i, u in enumerate(rows):
             next_start = rows[i+1]["start_sample"] if i+1 < len(rows) else count
-            cut = int(Fraction(next_start, 48000)*fps) if i+1 < len(rows) else clock["source_frames"]
-            if p["require_coverage"] and Fraction(cut, 1)/fps < Fraction(u["end_sample"], 48000):
+            cut = cut_frame(clock, next_start) if i+1 < len(rows) else clock["source_frames"]
+            if p["require_coverage"] and (cut < 0 or frame_sample(clock, cut) < u["end_sample"]):
                 raise ValueError(f"片段 {u['unit_id']} 后没有安全整帧切点。请合并同角色相邻片段或重新审核边界")
             units.append({"unit_id": u["unit_id"], "start_sample": u["start_sample"], "end_sample": u["end_sample"],
                 "safe_cut_frame": cut, "text": u["text"], "speaker_id": u.get("speaker_id"),

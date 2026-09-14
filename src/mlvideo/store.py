@@ -5,6 +5,9 @@ from .process import run_worker
 from .util import uid, now, sha512, atomic_json, durable_copy
 
 
+DOWNLOAD_POLICY = "highest_resolution_v1"
+
+
 def ingest(engine, source, download=False):
     identity = uid("acq")
     root = engine.root
@@ -30,6 +33,7 @@ def ingest(engine, source, download=False):
     )
     try:
         if download:
+            receipt["download_policy"] = DOWNLOAD_POLICY
             argv = [
                 sys.executable,
                 "-m",
@@ -46,7 +50,10 @@ def ingest(engine, source, download=False):
                 "--retries",
                 "1",
                 "-f",
-                "bv*[height<=1080]+ba/b[height<=?1080]",
+                "bv*+ba/b",
+                "--format-sort-force",
+                "-S",
+                "res,fps",
                 "--print-to-file",
                 "after_move:filepath",
                 str(raw / "final.txt"),
@@ -81,12 +88,6 @@ def ingest(engine, source, download=False):
         from .util import read_json
 
         info = read_json(probe_work / "probe.json")
-        if download and any(
-            s.get("height", 0) > 1080
-            for s in info["streams"]
-            if s["codec_type"] == "video"
-        ):
-            raise ValueError("Downloaded media exceeds the 1080p height limit")
         digest = sha512(snapshot)
         target = root / "videos" / digest / "source" / "original.bin"
         if target.exists():

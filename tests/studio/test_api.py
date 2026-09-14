@@ -24,6 +24,22 @@ def test_api_series_and_strict_fields(client):
     assert client.get('/api/series/'+s['id']).json()['characters'][0]['name']=='Narrator'
 
 
+def test_original_mp4_media_type_and_bytes(client, catalog):
+    from mlvideo.config import ROOT
+    from mlvideo.store import ingest
+    from mlvideo.phase2_pipeline import ports
+    source = ROOT / 'tests/fixtures/generated/rotate.mp4'
+    acquired = ingest(catalog.engine, source)
+    asset = acquired['asset_sha512']
+    ref = acquired['source_artifact_id']
+    probe = ports(catalog.engine.run(asset, 'N03', 'ffprobe', {'source': ref}, {}))
+    c = ports(catalog.engine.run(asset, 'N04', 'original', {'source': ref, 'probe': probe['probe']}, {}))
+    response = client.get('/api/media/' + c['video'])
+    assert response.status_code == 200
+    assert response.headers['content-type'] == 'video/mp4'
+    assert response.content == source.read_bytes()
+
+
 def test_csrf_origin_and_host(client):
     assert client.post('/api/series',json={'name':'blocked'},headers={'X-Studio-Token':''}).status_code==403
     assert client.post('/api/series',json={'name':'blocked'},headers={'Origin':'https://evil.test'}).status_code==403

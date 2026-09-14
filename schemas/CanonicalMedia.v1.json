@@ -49,6 +49,19 @@
     "audio_payload_samples": {
       "type": "integer",
       "minimum": 0
+    },
+    "timing_mode": {
+      "const": "original"
+    },
+    "frame_samples": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "origin_seconds": {
+      "type": "string"
     }
   },
   "required": [
@@ -67,5 +80,15 @@
     "audio_start_sample",
     "audio_payload_samples"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "dependentRequired": {
+    "timing_mode": [
+      "frame_samples",
+      "origin_seconds"
+    ],
+    "frame_samples": [
+      "timing_mode",
+      "origin_seconds"
+    ]
+  }
 }

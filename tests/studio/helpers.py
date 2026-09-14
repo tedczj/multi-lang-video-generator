@@ -53,7 +53,7 @@ def seed_episode(cat, series=None, frequency=440, title="测试输入：提示�
     src = register(cat, asset, {"source": ("Binary.v1", path)}, "N02", "source")["source"]
     ep = cat.create_episode(series["id"], title, asset_sha512=asset, source_artifact_id=src)
     probe = ports(cat.engine.run(asset, "N03", "ffprobe", {"source": src}, {}))
-    can = ports(cat.engine.run(asset, "N04", "ffmpeg", {"source": src, "probe": probe["probe"]}, {}))
+    can = ports(cat.engine.run(asset, "N04", "original", {"source": src, "probe": probe["probe"]}, {}))
     inv = ports(cat.engine.run(asset, "N05", "inventory", {"video": can["video"], "probe": probe["probe"]}, {}))
     rows = [{"id": "speech1", "start_sample": 24000, "end_sample": 96000, "text": "Hello there.", "speaker_id": None},
             {"id": "speech2", "start_sample": 192000, "end_sample": 264000, "text": "Let's go!", "speaker_id": None}]

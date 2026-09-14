@@ -187,14 +187,16 @@ class Catalog:
         return self.get("studio_episodes", row["id"])
 
     @mutation
-    def bind_source(self, episode_id, asset_sha512, source_artifact_id):
+    def bind_source(self, episode_id, asset_sha512, source_artifact_id, *, replace_unreviewed=False):
         episode = self.get("studio_episodes", episode_id)
         self.engine.artifact(source_artifact_id, asset_sha512)
         if episode["asset_sha512"] and (episode["asset_sha512"], episode["source_artifact_id"]) != (asset_sha512, source_artifact_id):
-            raise Conflict("视频已绑定另一份源素材。请新建视频条目，不覆盖旧资源")
+            if not replace_unreviewed or episode["active_revision_id"] or self.rows("studio_revisions", "episode_id=%s", (episode_id,)):
+                raise Conflict("视频已绑定另一份源素材。请新建视频条目，不覆盖旧资源")
         self.db.query("UPDATE studio_episodes SET asset_sha512=%s,source_artifact_id=%s WHERE id=%s",
                       (asset_sha512, source_artifact_id, episode_id))
-        self.event(episode_id, "episode.source_bound", {"asset_sha512": asset_sha512, "source_artifact_id": source_artifact_id})
+        self.event(episode_id, "episode.source_bound", {"asset_sha512": asset_sha512, "source_artifact_id": source_artifact_id,
+            "previous_asset_sha512": episode["asset_sha512"], "previous_source_artifact_id": episode["source_artifact_id"]})
 
     def revision_view(self, revision_id):
         rev = self.get("studio_revisions", revision_id)

@@ -30,6 +30,8 @@ class JobExecutor:
         self.result["asset_sha512"] = asset
         self.progress()
         previous = (self.old or {}).get("executions", {}).get(key)
+        if self.old and self.old.get("asset_sha512") != asset:
+            previous = None
         scope = "studio_" + digest([self.job["kind"], self.payload.get("plan_id") or self.payload.get("profile_id") or self.payload.get("reference_id") or self.job["episode_id"], key])[:32]
         try:
             result = self.engine.run(asset, node, strategy, inputs, params or {}, scope=scope,
@@ -87,18 +89,23 @@ class JobExecutor:
         return self.result
 
     def prepare(self):
-        from ..store import ingest
+        from ..store import DOWNLOAD_POLICY, ingest
 
         ep = self.catalog.get("studio_episodes", self.payload["episode_id"])
         if ep["active_revision_id"] != self.payload["expected_revision"]:
             raise Conflict("视频分段已变化，不能用旧准备任务覆盖；请重新提交分析")
-        if not ep["source_artifact_id"]:
+        refresh = False
+        if ep["source_artifact_id"] and self.payload["source_url"] and not ep["active_revision_id"]:
+            source_ref = self.engine.artifact(ep["source_artifact_id"], ep["asset_sha512"])
+            receipts = self.catalog.db.query("SELECT id FROM artifacts WHERE execution_id=%s AND schema_id='AcquisitionReceipt.v1'", (source_ref["execution_id"],))
+            refresh = not receipts or self.value(receipts[0]["id"], ep["asset_sha512"]).get("download_policy") != DOWNLOAD_POLICY
+        if not ep["source_artifact_id"] or refresh:
             acquired = ingest(self.engine, self.payload["source_url"], download=True)
-            self.catalog.bind_source(ep["id"], acquired["asset_sha512"], acquired["source_artifact_id"])
+            self.catalog.bind_source(ep["id"], acquired["asset_sha512"], acquired["source_artifact_id"], replace_unreviewed=refresh)
             ep = self.catalog.get("studio_episodes", ep["id"])
         asset, source, settings = ep["asset_sha512"], ep["source_artifact_id"], self.payload["settings"]
         probe = self.step("probe", asset, "N03", "ffprobe", {"source": source})
-        c = self.step("canonical", asset, "N04", "excerpt" if "excerpt" in settings else "ffmpeg",
+        c = self.step("canonical", asset, "N04", "excerpt" if "excerpt" in settings else "original",
                       {"source": source, "probe": probe["probe"]}, settings.get("excerpt", {}))
         inventory = self.step("inventory", asset, "N05", "inventory", {"video": c["video"], "probe": probe["probe"]},
                               {"roi": settings.get("roi", [0, .5, 1, 1])})

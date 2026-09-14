@@ -64,6 +64,69 @@ def probe(path, work, decode=True):
     return r
 
 
+def preserve_source(source, info, work):
+    """Keep the source bytes/PTS; extract PCM without adding or dropping video frames."""
+    videos = [s for s in info["streams"] if s["codec_type"] == "video"]
+    audios = [s for s in info["streams"] if s["codec_type"] == "audio"]
+    if len(videos) != 1 or len(audios) != 1:
+        raise ValueError("Ambiguous video/original audio tracks: REVIEW")
+    v, a = videos[0], audios[0]
+    audio_frames = json.loads(command([
+        "ffprobe", "-v", "error", "-select_streams", "a:0", "-show_frames",
+        "-show_entries", "frame=best_effort_timestamp_time,nb_samples", "-of", "json", str(source),
+    ], work))["frames"]
+    tolerance = max(F(a["time_base"]), F(1, int(a["sample_rate"])))
+    for previous, current in zip(audio_frames, audio_frames[1:]):
+        expected = F(previous["best_effort_timestamp_time"]) + F(previous["nb_samples"], int(a["sample_rate"]))
+        if abs(F(current["best_effort_timestamp_time"]) - expected) > tolerance:
+            raise ValueError("Unexplained audio timestamp gap/overlap; cannot extract safely")
+    frames = json.loads(command([
+        "ffprobe", "-v", "error", "-select_streams", "v:0", "-show_frames",
+        "-show_entries", "frame=best_effort_timestamp_time,duration_time", "-of", "json", str(source),
+    ], work))["frames"]
+    pts = [F(f["best_effort_timestamp_time"]) for f in frames]
+    if not pts or any(y <= x for x, y in zip(pts, pts[1:])):
+        raise ValueError("Unexplained video timestamps")
+    fps = F(v["r_frame_rate"])
+    if fps <= 0:
+        raise ValueError("Missing source frame rate")
+    audio_start = F(audio_frames[0]["best_effort_timestamp_time"]) if audio_frames else F(a.get("start_time", "0"))
+    origin = min(pts[0], audio_start)
+    offset = audio_start - origin
+    raw = work / "audio.raw.wav"
+    command([
+        "ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(source),
+        "-map", "0:a:0", "-vn", "-af", "aresample=48000", "-ac", "2",
+        "-c:a", "pcm_s16le", str(raw),
+    ], work)
+    with wave.open(str(raw), "rb") as src:
+        payload = src.getnframes()
+    duration = F(frames[-1].get("duration_time", "0")) or 1 / fps
+    end = max(pts[-1] + duration - origin, offset + F(payload, 48000))
+    samples = quantize(end)
+    shift = quantize(offset)
+    with wave.open(str(raw), "rb") as src, wave.open(str(work / "canonical.wav"), "wb") as dst:
+        dst.setparams((2, 2, 48000, 0, "NONE", "not compressed"))
+        write_zeros(dst, shift)
+        while block := src.readframes(48000):
+            dst.writeframesraw(block)
+        write_zeros(dst, samples - shift - payload)
+    raw.unlink()
+    shutil.copyfile(source, work / "original.bin")
+    atomic_json(work / "canonical.json", {
+        "fps": str(fps), "sample_rate": 48000, "channels": 2,
+        "source_frames": len(pts), "source_samples": samples,
+        "source_pts": [str(p) for p in pts], "frame_mapping": list(range(len(pts))),
+        "audio_offset_seconds": str(audio_start - pts[0]),
+        "rotation": next((s["rotation"] for s in v.get("side_data_list", []) if "rotation" in s), 0),
+        "video_lead_frames": 0, "video_tail_frames": 0,
+        "audio_start_sample": shift, "audio_payload_samples": payload,
+        "warnings": [], "timing_mode": "original",
+        "frame_samples": [quantize(p - origin) for p in pts] + [samples],
+        "origin_seconds": str(origin),
+    })
+
+
 def normalize(source, info, work, fps_override=None):
     videos = [s for s in info["streams"] if s["codec_type"] == "video"]
     audios = [s for s in info["streams"] if s["codec_type"] == "audio"]
@@ -278,11 +341,70 @@ def write_zeros(dst, n):
         n -= take
 
 
+def video_geometry(stream):
+    width, height = stream["width"], stream["height"]
+    rotation = next((s["rotation"] for s in stream.get("side_data_list", []) if "rotation" in s), 0)
+    return (height, width) if abs(rotation) % 180 == 90 else (width, height)
+
+
+def render_original_frames(decode_argv, audio, t, work, width, height, overlay, output_height):
+    """Timestamp each original/intentional hold frame; never resample the source FPS."""
+    import av
+    from PIL import Image
+
+    pts = t["frame_samples"]
+    frame_bytes = width * height * 3
+    with (work / "decode.stderr").open("wb") as err:
+        decoder = subprocess.Popen(decode_argv, stdout=subprocess.PIPE, stderr=err)
+        try:
+            with av.open(str(audio)) as sound, av.open(str(work / "master.mkv"), "w") as target:
+                video = target.add_stream("ffv1", rate=F(t["fps"]))
+                video.width, video.height = width, output_height or height
+                video.pix_fmt = "bgr0"
+                video.time_base = video.codec_context.time_base = F(1, 48000)
+                audio_stream = target.add_stream_from_template(sound.streams.audio[0])
+                packets = (p for p in sound.demux(sound.streams.audio[0]) if p.dts is not None)
+                pending = next(packets, None)
+                last = None
+                index = 0
+                for piece in t["pieces"]:
+                    for _ in range(piece["output_end_frame"] - piece["output_start_frame"]):
+                        if piece["kind"] == "source":
+                            last = decoder.stdout.read(frame_bytes)
+                            if len(last) != frame_bytes:
+                                raise ValueError("Source frame count mismatch")
+                        # Overlay's clock argument is expressed in samples for native PTS.
+                        pixels = overlay(last, pts[index], F(48000)) if overlay else last
+                        frame = av.VideoFrame.from_image(Image.frombytes("RGB", (width, output_height or height), pixels))
+                        frame.pts, frame.time_base = pts[index], F(1, 48000)
+                        for packet in video.encode(frame):
+                            packet.duration = pts[index + 1] - pts[index]
+                            target.mux(packet)
+                        while pending is not None and pending.pts * pending.time_base < F(pts[index + 1], 48000):
+                            pending.stream = audio_stream
+                            target.mux(pending)
+                            pending = next(packets, None)
+                        index += 1
+                for packet in video.encode():
+                    target.mux(packet)
+                while pending is not None:
+                    pending.stream = audio_stream
+                    target.mux(pending)
+                    pending = next(packets, None)
+                if decoder.stdout.read(1) or decoder.wait():
+                    raise ValueError("Unexpected source frames or decoding failure")
+        finally:
+            if decoder.poll() is None:
+                decoder.kill()
+            decoder.wait()
+            decoder.stdout.close()
+
+
 def render(video, audio, t, work, dub_audio=None, overlay=None, output_height=None):
     verify(t)
     fps = F(t["fps"])
-    info = probe(video, work, False)["streams"][0]
-    width, height = info["width"], info["height"]
+    info = next(s for s in probe(video, work, False)["streams"] if s["codec_type"] == "video")
+    width, height = video_geometry(info)
     frame_bytes = width * height * 3
     retimed = work / "retimed.wav"
     with wave.open(str(audio), "rb") as src, wave.open(str(retimed), "wb") as dst:
@@ -297,7 +419,8 @@ def render(video, audio, t, work, dub_audio=None, overlay=None, output_height=No
         source_pos = output_pos = 0
         for p in t["pieces"]:
             if p["kind"] == "source":
-                end = quantize(F(p["source_end_frame"]) / fps)
+                end = (t["source_frame_samples"][p["source_end_frame"]] if "source_frame_samples" in t
+                       else quantize(F(p["source_end_frame"]) / fps))
                 n = end - source_pos
                 src.setpos(source_pos)
                 while n:
@@ -417,40 +540,46 @@ def render(video, audio, t, work, dub_audio=None, overlay=None, output_height=No
         str(work / "master.mkv"),
     ]
     atomic_json(
-        work / "streaming-commands.json", {"decode": decode_argv, "encode": encode_argv}
+        work / "streaming-commands.json", {"decode": decode_argv, "encode": (
+            {"backend": "PyAV", "codec": "ffv1", "pixel_format": "bgr0",
+             "time_base": "1/48000", "timestamps": t["frame_samples"], "audio": str(master_audio)}
+            if "frame_samples" in t else encode_argv)}
     )
-    with (
-        (work / "decode.stderr").open("wb") as decerr,
-        (work / "encode.stderr").open("wb") as encerr,
-    ):
-        decoder = subprocess.Popen(decode_argv, stdout=subprocess.PIPE, stderr=decerr)
-        encoder = subprocess.Popen(encode_argv, stdin=subprocess.PIPE, stderr=encerr)
-        try:
-            last = None
-            frame_index = 0
-            for p in t["pieces"]:
-                for _ in range(p["output_end_frame"] - p["output_start_frame"]):
-                    if p["kind"] == "source":
-                        last = decoder.stdout.read(frame_bytes)
-                        if len(last) != frame_bytes:
-                            raise ValueError("Source frame count mismatch")
-                    encoder.stdin.write(
-                        overlay(last, frame_index, fps) if overlay else last
-                    )
-                    frame_index += 1
-            if decoder.stdout.read(1):
-                raise ValueError("Unexpected extra source frames")
-            encoder.stdin.close()
-            if decoder.wait() or encoder.wait():
-                raise ValueError("Streaming FFmpeg failed")
-        finally:
-            for child in (decoder, encoder):
-                if child.poll() is None:
-                    child.kill()
-                child.wait()
-            decoder.stdout.close()
-            if not encoder.stdin.closed:
+    if "frame_samples" in t:
+        render_original_frames(decode_argv, master_audio, t, work, width, height, overlay, output_height)
+    else:
+        with (
+            (work / "decode.stderr").open("wb") as decerr,
+            (work / "encode.stderr").open("wb") as encerr,
+        ):
+            decoder = subprocess.Popen(decode_argv, stdout=subprocess.PIPE, stderr=decerr)
+            encoder = subprocess.Popen(encode_argv, stdin=subprocess.PIPE, stderr=encerr)
+            try:
+                last = None
+                frame_index = 0
+                for p in t["pieces"]:
+                    for _ in range(p["output_end_frame"] - p["output_start_frame"]):
+                        if p["kind"] == "source":
+                            last = decoder.stdout.read(frame_bytes)
+                            if len(last) != frame_bytes:
+                                raise ValueError("Source frame count mismatch")
+                        encoder.stdin.write(
+                            overlay(last, frame_index, fps) if overlay else last
+                        )
+                        frame_index += 1
+                if decoder.stdout.read(1):
+                    raise ValueError("Unexpected extra source frames")
                 encoder.stdin.close()
+                if decoder.wait() or encoder.wait():
+                    raise ValueError("Streaming FFmpeg failed")
+            finally:
+                for child in (decoder, encoder):
+                    if child.poll() is None:
+                        child.kill()
+                    child.wait()
+                decoder.stdout.close()
+                if not encoder.stdin.closed:
+                    encoder.stdin.close()
     command(
         [
             "ffmpeg",
@@ -460,6 +589,9 @@ def render(video, audio, t, work, dub_audio=None, overlay=None, output_height=No
             "-y",
             "-i",
             str(work / "master.mkv"),
+            "-fps_mode",
+            "passthrough",
+            *(["-enc_time_base:v", "1:48000"] if "frame_samples" in t else []),
             "-c:v",
             "libx264",
             "-pix_fmt",

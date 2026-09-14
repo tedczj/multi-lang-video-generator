@@ -15,7 +15,7 @@ from pathlib import Path
 
 from . import media
 from .contracts import validate
-from .timeline import plan
+from .timeline import plan, cut_frame, frame_sample
 from .util import atomic_json, digest, read_json, sha512
 
 
@@ -23,7 +23,7 @@ def group_utterances(speech, captions, canonical, refs):
     segments = speech["segments"]
     if not segments:
         raise ValueError("No recognized speech: REVIEW")
-    total, sr, fps = canonical["source_samples"], 48000, F(canonical["fps"])
+    total = canonical["source_samples"]
     if any(not 0 <= s["start_sample"] < s["end_sample"] <= total for s in segments):
         raise ValueError("Speech interval outside canonical media")
     if any(b["start_sample"] < a["start_sample"] for a, b in pairwise(segments)):
@@ -38,8 +38,9 @@ def group_utterances(speech, captions, canonical, refs):
                 and v["end_sample"] > groups[-1]["end_sample"]
                 for v in speech["protected_intervals"]
             )
-            or F(int(F(s["start_sample"], sr) * fps), 1) / fps
-            < F(groups[-1]["end_sample"], sr)
+            or cut_frame(canonical, s["start_sample"]) < 0
+            or frame_sample(canonical, cut_frame(canonical, s["start_sample"]))
+            < groups[-1]["end_sample"]
         )
         if merge:
             g = groups[-1]
@@ -66,7 +67,7 @@ def group_utterances(speech, captions, canonical, refs):
             groups[index + 1]["start_sample"] if index + 1 < len(groups) else total
         )
         cut = (
-            int(F(next_start, sr) * fps)
+            cut_frame(canonical, next_start)
             if index + 1 < len(groups)
             else canonical["source_frames"]
         )
@@ -369,7 +370,8 @@ def run(request, work, output):
                 work,
             )
             offset = round(
-                (F(c["video_lead_frames"]) / F(c["fps"]) - F(c["source_pts"][0]))
+                (-F(c["origin_seconds"]) if "origin_seconds" in c else
+                 F(c["video_lead_frames"]) / F(c["fps"]) - F(c["source_pts"][0]))
                 * 48000
             )
             cues = parse_srt((work / "source.srt").read_text(), offset)
@@ -395,9 +397,9 @@ def run(request, work, output):
                 ],
                 work,
             )
-            info = media.probe(src("video"), work, False)["streams"][0]
+            info = next(s for s in media.probe(src("video"), work, False)["streams"] if s["codec_type"] == "video")
             roi = inventory["roi"]
-            width, height = info["width"], info["height"]
+            width, height = media.video_geometry(info)
             for i, frame in enumerate(sorted(folder.glob("*.png"))):
                 body = {
                     "file": base64.b64encode(frame.read_bytes()).decode(),
@@ -448,11 +450,8 @@ def run(request, work, output):
                             and roi[0] * width <= (x0 + x1) / 2 <= roi[2] * width
                             and roi[1] * height <= (y0 + y1) / 2 <= roi[3] * height
                         ):
-                            a = round(F(i * stride, 1) / F(c["fps"]) * 48000)
-                            b = min(
-                                c["source_samples"],
-                                round(F((i + 1) * stride, 1) / F(c["fps"]) * 48000),
-                            )
+                            a = frame_sample(c, i * stride)
+                            b = frame_sample(c, min((i + 1) * stride, c["source_frames"]))
                             cues.append(
                                 {
                                     "id": "cue_"
