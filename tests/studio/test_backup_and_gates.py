@@ -11,6 +11,8 @@ from .sqlite_protocol import SQLiteProtocolDB
 
 def test_backup_contains_and_restores_studio(catalog,tmp_path):
     s=catalog.create_series('Backup series');catalog.create_character(s['id'],'A')
+    _, ep, rev = seed_episode(catalog, series=s)
+    note = catalog.save_note(rev['id'], rev['segments'][0]['id'], 0, '独立备注必须随备份恢复')
     with file_lock(catalog.root/'.writer.lock'):
         out=tmp_path/'backup';result=backup(catalog.engine,out)
     assert 'studio_profiles' in result['tables'] and result['tables']['studio_characters']==1
@@ -23,6 +25,7 @@ def test_backup_contains_and_restores_studio(catalog,tmp_path):
         with file_lock(cat.root/'.writer.lock'):restore(cat.engine,out)
         assert cat.rows('studio_series')[0]['name']=='Backup series'
         assert cat.rows('studio_characters')[0]['series_id']==s['id']
+        assert cat.revision_view(rev['id'])['segments'][0]['note']['notes'] == note['notes']
     finally:db.close()
 
 
@@ -94,7 +97,7 @@ def test_restore_pre_studio_backup(catalog, tmp_path):
         with file_lock(cat.root / '.writer.lock'):
             result = restore(cat.engine, out)
         assert all(result['tables'][table] == 0 for table in STUDIO_TABLES)
-        assert len(db.query('SELECT * FROM schema_migrations')) == 2
+        assert len(db.query('SELECT * FROM schema_migrations')) == 3
     finally:
         db.close()
 

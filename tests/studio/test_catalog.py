@@ -94,6 +94,28 @@ def test_unknown_blocks_plan(catalog):
     with pytest.raises(ValueError,match='所有片段'):catalog.create_plan(ep['id'],rev['id'],'Ted','test')
 
 
+def test_translation_keeps_queued_annotation_identity(catalog, monkeypatch):
+    from mlvideo.studio.jobs import JobExecutor
+
+    series, ep, rev = seed_episode(catalog)
+    s = rev['segments'][0]
+    char = catalog.create_character(series['id'], 'A')
+    old = catalog.annotate(rev['id'], s['id'], 0, char['id'], 'REVIEW', s['text'], '', 'local-user', '角色草稿')
+    job = catalog.translate(rev['id'])
+    assert job['payload']['source_annotations'][s['id']] == old['id']
+    new = catalog.annotate(rev['id'], s['id'], 1, char['id'], 'REVIEW', s['text'], '用户先改的译文', 'local-user', '改译文')
+    executor = JobExecutor(catalog, job)
+    monkeypatch.setattr(executor, 'step', lambda key, *args, **kwargs:
+                        {'utterances': 'TEST'} if key == 'translation_units' else {'translation': 'TEST'})
+    monkeypatch.setattr(executor, 'value', lambda *args: {'items': [
+        {'unit_id': s['id'], 'source_text': s['text'], 'text': '迟到的测试译文'}]})
+    executor.translate()
+    saved = catalog.revision_view(rev['id'])['segments'][0]
+    assert saved['annotation']['id'] == new['id']
+    assert saved['annotation']['chinese_text'] == '用户先改的译文'
+    assert saved['suggestions']['translation']['payload']['source_annotation_id'] == old['id']
+
+
 def test_snapshot_tampering_is_detected(catalog):
     series,ep,rev=seed_episode(catalog)
     catalog.db.query('UPDATE studio_revisions SET payload_json=%s WHERE id=%s',(json.dumps({'bad':True}),rev['id']))

@@ -16,7 +16,7 @@ from ..util import canonical, digest, file_lock, uid, ensure_no_secrets
 TABLES = [
     "studio_series", "studio_characters", "studio_episodes", "studio_revisions",
     "studio_annotations", "studio_suggestions", "studio_references", "studio_profiles",
-    "studio_plans", "studio_jobs", "studio_clip_selections", "studio_events",
+    "studio_plans", "studio_jobs", "studio_clip_selections", "studio_events", "studio_segment_notes",
 ]
 REFERENCE_CHECKS = {"speaker_identity", "transcript", "clean_reference", "complete_words"}
 VOICE_CHECKS = {"voice_identity", "chinese_content", "naturalness"}
@@ -206,7 +206,11 @@ class Catalog:
         suggestions = {}
         for s in self.rows("studio_suggestions", "revision_id=%s", (revision_id,), "version,id"):
             suggestions.setdefault(s["segment_id"], {})[s["payload"].get("kind", "speaker")] = s
+        notes = {}
+        for n in self.rows("studio_segment_notes", "revision_id=%s", (revision_id,), "version,id"):
+            notes[n["segment_id"]] = n
         return rev | {"segments": [s | {"annotation": annotations.get(s["id"]),
+                                                  "note": notes.get(s["id"]),
                                                   "suggestions": suggestions.get(s["id"], {})}
                                    for s in rev["payload"]["segments"]]}
 
@@ -262,6 +266,10 @@ class Catalog:
             old = {s["id"]: s for s in previous_revision["segments"]} if same_source else {}
             for s in new:
                 previous = old.get(s["id"])
+                if previous and previous["note"] and all(s[k] == previous[k] for k in ("start_sample", "end_sample", "text")):
+                    n = previous["note"]
+                    self.db.insert("studio_segment_notes", {"id": uid("note"), "revision_id": row["id"],
+                        "segment_id": s["id"], "version": 1, "notes": n["notes"], "carried_from": n["id"]})
                 if previous and previous["annotation"] and all(s[k] == previous[k] for k in ("start_sample", "end_sample", "text")):
                     a = previous["annotation"]
                     carry = {k: a[k] for k in ("segment_id", "character_id", "status", "english_text", "chinese_text", "reviewer", "reason")}
@@ -269,6 +277,26 @@ class Catalog:
         self.db.query("UPDATE studio_episodes SET active_revision_id=%s WHERE id=%s", (row["id"], episode_id))
         self.event(episode_id, "revision.created", {"id": row["id"], "previous": expected_revision, "sha512": rev["payload_sha512"]})
         return self.revision_view(row["id"])
+
+    @mutation
+    def save_note(self, revision_id, segment_id, expected_version, notes):
+        rev = self.revision_view(revision_id)
+        if self.get("studio_episodes", rev["episode_id"])["active_revision_id"] != revision_id:
+            raise Conflict("当前分段已替换，不能提交到旧版本")
+        s = next((s for s in rev["segments"] if s["id"] == segment_id), None)
+        if s is None:
+            raise ValueError("片段不属于当前分段版本")
+        old = s["note"]
+        if expected_version != (old["version"] if old else 0):
+            raise Conflict("备注已由另一个页面修改，请核对最新备注后重试")
+        notes = text(notes, "备注", 4000, True)
+        if old and notes == old["notes"]:
+            return old
+        row = {"id": uid("note"), "revision_id": revision_id, "segment_id": segment_id,
+               "version": expected_version + 1, "notes": notes}
+        self.db.insert("studio_segment_notes", row)
+        self.event(revision_id, "note.appended", row)
+        return self.get("studio_segment_notes", row["id"])
 
     @mutation
     def annotate(self, revision_id, segment_id, expected_version, character_id, status, english_text, chinese_text, reviewer, reason):
@@ -282,9 +310,9 @@ class Catalog:
         old = s["annotation"]
         if expected_version != (old["version"] if old else 0):
             raise Conflict("该片段已由另一个页面修改，请刷新后重新提交")
-        if status not in {"CONFIRMED", "UNKNOWN", "OVERLAP"}:
+        if status not in {"REVIEW", "CONFIRMED", "UNKNOWN", "OVERLAP"}:
             raise ValueError("无效角色审核状态")
-        if status == "CONFIRMED":
+        if status == "CONFIRMED" or (status == "REVIEW" and character_id is not None):
             self.character_in_series(character_id, ep["series_id"])
         elif character_id is not None:
             raise ValueError("未知/重叠片段不能指定正式角色")
@@ -604,7 +632,9 @@ class Catalog:
         items = [{"unit_id": s["id"], "start_sample": s["start_sample"], "end_sample": s["end_sample"],
                   "text": s["annotation"]["english_text"] if s["annotation"] else s["text"],
                   "speaker_id": s["annotation"]["character_id"] if s["annotation"] else None} for s in rev["segments"]]
-        return self.enqueue("TRANSLATE", {"revision_id": revision_id, "items": items}, ep["id"])
+        annotations = {s["id"]: s["annotation"]["id"] if s["annotation"] else None for s in rev["segments"]}
+        return self.enqueue("TRANSLATE", {"revision_id": revision_id, "items": items,
+                                         "source_annotations": annotations}, ep["id"])
 
     @mutation
     def suggest(self, revision_id):

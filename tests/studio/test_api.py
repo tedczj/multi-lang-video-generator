@@ -24,6 +24,46 @@ def test_api_series_and_strict_fields(client):
     assert client.get('/api/series/'+s['id']).json()['characters'][0]['name']=='Narrator'
 
 
+def test_notes_autosave_is_independent_and_versioned(client, catalog):
+    series, ep, rev = seed_episode(catalog)
+    segment = rev['segments'][0]
+    route = f"/api/revisions/{rev['id']}/segments/{segment['id']}/note"
+    body = {'expected_version': 0, 'notes': 'said Mara. 拆给旁白'}
+    response = client.post(route, json=body)
+    assert response.status_code == 201
+    note = response.json()
+    saved = client.get('/api/episodes/' + ep['id']).json()['revision']['segments'][0]
+    assert saved['note']['notes'] == body['notes']
+    assert saved['annotation'] is None
+    assert saved['suggestions'] == {}
+    assert client.post(route, json=body).status_code == 409
+    body.update(expected_version=1, notes='')
+    assert client.post(route, json=body).json()['version'] == 2
+    assert catalog.get('studio_segment_notes', note['id'])['notes'] == 'said Mara. 拆给旁白'
+    assert client.post(route, json={'expected_version': 2, 'notes': 'x' * 4001}).status_code == 422
+    assert client.post(route.replace(segment['id'], 'missing'), json=body).status_code == 400
+
+    character = catalog.create_character(series['id'], 'Mara')
+    draft = catalog.annotate(rev['id'], segment['id'], 0, character['id'], 'REVIEW', segment['text'], '',
+                             'local-user', '保留未确认的角色草稿')
+    assert draft['status'] == 'REVIEW' and draft['character_id'] == character['id']
+    with pytest.raises(ValueError, match='所有片段'):
+        catalog.create_plan(ep['id'], rev['id'], 'local-user', '草稿不能冻结')
+    with pytest.raises(ValueError):
+        catalog.create_reference(rev['id'], character['id'], segment['start_sample'], segment['end_sample'],
+                                 segment['text'], 'local-user', '草稿不能成为参考')
+
+    new = catalog.create_revision(ep['id'], rev['payload']['bindings'], rev['payload']['segments'], rev['id'], '未改边界')
+    assert new['segments'][0]['note']['version'] == 1
+    assert new['segments'][0]['note']['carried_from']
+    assert client.post(route, json=body).status_code == 409
+    changed = [dict(s) for s in new['payload']['segments']]
+    changed[0]['text'] += ' changed'
+    newer = catalog.create_revision(ep['id'], new['payload']['bindings'], changed, new['id'], '修改文本')
+    assert newer['segments'][0]['note'] is None
+    assert catalog.revision_view(new['id'])['segments'][0]['note'] is not None
+
+
 def test_original_mp4_media_type_and_bytes(client, catalog):
     from mlvideo.config import ROOT
     from mlvideo.store import ingest

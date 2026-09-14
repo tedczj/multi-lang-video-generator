@@ -54,6 +54,11 @@ class BatchItem(AnnotationIn):
     segment_id: str
 
 
+class NoteIn(Input):
+    expected_version: int = Field(ge=0)
+    notes: str = Field(max_length=4000)
+
+
 class BatchIn(Input):
     items: list[BatchItem] = Field(min_length=1, max_length=500)
 
@@ -267,6 +272,10 @@ def create_app(config, db_factory=None, allowed_hosts=None):
     @app.post("/api/revisions/{identity}/segments/{segment}/annotation", status_code=201)
     def annotate(identity: str, segment: str, body: AnnotationIn, cat=Depends(catalogue)):
         return cat.annotate(identity, segment, **body.model_dump())
+
+    @app.post("/api/revisions/{identity}/segments/{segment}/note", status_code=201)
+    def note(identity: str, segment: str, body: NoteIn, cat=Depends(catalogue)):
+        return cat.save_note(identity, segment, **body.model_dump())
 
     @app.post("/api/revisions/{identity}/annotations", status_code=201)
     def batch_annotate(identity: str, body: BatchIn, cat=Depends(catalogue)):

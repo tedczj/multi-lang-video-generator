@@ -261,6 +261,7 @@ class JobExecutor:
             tr = self.step(f"translate_{i}", asset, "N09", "codex", {"utterances": utterances["utterances"]}, {"batch_index": i})
             for u in self.value(tr["translation"], asset)["items"]:
                 suggestions.append({"kind": "translation", "segment_id": u["unit_id"], "text": u["text"],
+                                    "source_annotation_id": self.payload.get("source_annotations", {}).get(u["unit_id"]),
                                     "source_text": u["source_text"], "artifact_id": tr["translation"]})
         self.catalog.add_suggestions(rev["id"], suggestions)
         self.result.update(revision_id=rev["id"], count=len(suggestions), state="WAITING_REVIEW")

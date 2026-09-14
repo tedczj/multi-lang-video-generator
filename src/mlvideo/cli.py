@@ -139,7 +139,7 @@ def main():
             check = DB(config)
             try:
                 check.bind_root()
-                if not check.one("SELECT version FROM schema_migrations WHERE version=2"):
+                if not check.one("SELECT version FROM schema_migrations WHERE version=3"):
                     raise ValueError("请先运行 migrate 安装系列工作台表")
             finally:
                 check.close()
