@@ -455,3 +455,15 @@ def test_recipe_rejects_multi_artifact_array_on_single_input_before_execution(tm
         run_recipe(engine, "asset", recipe)
     engine.run.assert_not_called()
     engine.db.insert.assert_not_called()
+
+
+def test_held_subtitle_remains_visible_before_between_and_after_audio():
+    from mlvideo.subtitles import held_subtitle
+
+    cues = [{'id': 'dialogue', 'start_sample': 48000, 'end_sample': 96000},
+            {'id': 'narrator', 'start_sample': 120000, 'end_sample': 144000}]
+    for sample in (0, 47999, 48000, 96000, 110000, 119999):
+        assert held_subtitle(cues, sample)['id'] == 'dialogue'
+    for sample in (120000, 144000, 192000):
+        assert held_subtitle(cues, sample)['id'] == 'narrator'
+    assert held_subtitle([], 0) is None

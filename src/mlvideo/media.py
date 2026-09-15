@@ -334,6 +334,30 @@ def normalize(source, info, work, fps_override=None):
     atomic_json(work / "canonical.json", result)
 
 
+def join_voice_parts(paths, destination, gap_samples=7680):
+    """Join normalized role/narrator PCM into one sentence, retaining part offsets."""
+    if not paths or type(gap_samples) is not int or gap_samples < 0:
+        raise ValueError("Voice parts and a nonnegative sample gap are required")
+    for path in paths:
+        with wave.open(str(path), "rb") as source:
+            if (source.getframerate(), source.getnchannels(), source.getsampwidth()) != (48000, 2, 2):
+                raise ValueError("Voice parts must be normalized 48 kHz stereo PCM16")
+    offsets, cursor = [], 0
+    with wave.open(str(destination), "wb") as target:
+        target.setparams((2, 2, 48000, 0, "NONE", "not compressed"))
+        for index, path in enumerate(paths):
+            if index:
+                write_zeros(target, gap_samples)
+                cursor += gap_samples
+            with wave.open(str(path), "rb") as source:
+                count = source.getnframes()
+                offsets.append({"path": str(path), "start_sample": cursor, "end_sample": cursor + count})
+                while block := source.readframes(48000):
+                    target.writeframesraw(block)
+                cursor += count
+    return offsets
+
+
 def write_zeros(dst, n):
     while n:
         take = min(n, 48000)

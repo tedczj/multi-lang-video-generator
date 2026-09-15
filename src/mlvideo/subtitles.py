@@ -65,6 +65,16 @@ def subtitle_display_end(timeline, index, preserve_source_english):
     return timeline["output_samples"]
 
 
+def held_subtitle(cues, sample):
+    """Keep the current held-page translation through pre/inter/post speech gaps."""
+    from bisect import bisect_right
+
+    if not cues:
+        return None
+    index = max(0, bisect_right([cue["start_sample"] for cue in cues], sample) - 1)
+    return cues[index]
+
+
 def chinese_baseline(anchor, frame_height, first_top, last_bottom):
     """Prefer below the English block; use above when the lower edge has no room."""
     block_height = last_bottom - first_top
