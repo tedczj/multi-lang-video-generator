@@ -1,5 +1,7 @@
 # multi-lang-video-generator
 
+实现与验收须遵守根目录 [固定规范 spec.md](spec.md)，包括字幕贴近原英文、输出画面不加边和布局修复不改变音频。
+
 Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水线。第一期实现媒体执行，不包含真实翻译、克隆语音或字幕制作；提示音演示的业务 QA 始终为 REVIEW。
 
 第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期已接入真实翻译、ASR/VAD、CosyVoice3 与双语候选成片链路，见 [整体验证与问题记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。正式视频集和人工质量验收仍未完成；第三期待开发。

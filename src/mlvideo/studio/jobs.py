@@ -233,8 +233,10 @@ class JobExecutor:
             boxes = [box for cue in self.value(c["captions"], asset)["cues"] for box in cue["boxes"]]
             if not boxes:
                 raise ValueError("保留原英文时需要实际字幕框；请使用 OCR 字幕证据或配置 source_subtitle_box")
-            anchor = [int(min(b[0] for b in boxes)), int(min(b[1] for b in boxes)),
-                      int(max(b[2] for b in boxes)), int(max(b[3] for b in boxes))]
+            distinct = {tuple(box) for box in boxes}
+            if len(distinct) != 1:
+                raise ValueError("英文字幕框随页面变化，需逐段/逐帧定位，不能用全片并集代替当前字幕框（spec.md）")
+            anchor = [int(v) for v in next(iter(distinct))]
         layout = self.step("layout", asset, "N17", "bilingual", {
             "timeline": timeline["timeline"], "utterances": b["utterances"], "translations": b["translations"], "video": c["video"]},
             {"font_size": settings.get("font_size", 24), "preserve_source_english": settings.get("preserve_source_english", False),

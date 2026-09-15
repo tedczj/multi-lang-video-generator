@@ -281,7 +281,7 @@ def test_hard_caption_consensus_deduplicates_frames_and_keeps_ocr_text():
         choose_text(utterances, track, "caption_consensus")
 
 
-def test_footer_preserves_all_source_pixels_and_only_draws_chinese_below():
+def test_subtitle_canvas_cannot_add_footer_or_crop_source():
     from PIL import Image
 
     from mlvideo.subtitles import overlay_frame
@@ -295,13 +295,19 @@ def test_footer_preserves_all_source_pixels_and_only_draws_chinese_below():
     }
     overlay = Image.new("RGBA", (4, 4))
     overlay.putpixel((1, 3), (255, 255, 255, 255))
+    for height in (1, 4):
+        layout['canvas_height'] = height
+        with pytest.raises(ValueError, match='preserve source dimensions'):
+            overlay_frame(frame, 0, 25, layout, [overlay])
+        with pytest.raises(ValueError, match='preserve source dimensions'):
+            overlay_frame(frame, 30, 25, layout, [overlay])
+    layout['canvas_height'] = 2
+    overlay = Image.new('RGBA', (4, 2))
+    overlay.putpixel((1, 1), (255, 255, 255, 255))
     actual = overlay_frame(frame, 0, 25, layout, [overlay])
-    assert actual[: len(frame)] == frame
-    assert len(actual) == 4 * 4 * 3 and actual[
-        (3 * 4 + 1) * 3 : (3 * 4 + 2) * 3
-    ] == bytes([255] * 3)
-    after = overlay_frame(frame, 30, 25, layout, [overlay])
-    assert after == frame + bytes([18, 24, 32]) * 8
+    assert len(actual) == len(frame)
+    assert actual[:12] == frame[:12]
+    assert overlay_frame(frame, 30, 25, layout, [overlay]) == frame
 
 
 def test_caption_spacing_consensus_retains_review_and_rejects_ties():

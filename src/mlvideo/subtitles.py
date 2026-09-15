@@ -81,8 +81,8 @@ def overlay_frame(frame, index, fps, layout, overlays):
 
     width, height = layout["width"], layout["height"]
     canvas_height = layout.get("canvas_height", height)
-    if canvas_height < height:
-        raise ValueError("Subtitle canvas cannot crop source video")
+    if canvas_height != height:
+        raise ValueError("Subtitle canvas must preserve source dimensions; no footer or crop")
     sample = round(index / fps * 48000)
     active = [
         i
@@ -91,10 +91,9 @@ def overlay_frame(frame, index, fps, layout, overlays):
     ]
     if len(active) > 1:
         raise ValueError("Overlapping subtitle events")
-    padded = frame + bytes([18, 24, 32]) * width * (canvas_height - height)
     if not active:
-        return padded
-    image = Image.frombytes("RGB", (width, canvas_height), padded).convert("RGBA")
+        return frame
+    image = Image.frombytes("RGB", (width, height), frame).convert("RGBA")
     return Image.alpha_composite(image, overlays[active[0]]).convert("RGB").tobytes()
 
 
@@ -243,9 +242,9 @@ def run(request, work, output):
         info = next(s for s in media.probe(src("video"), work, False)["streams"] if s["codec_type"] == "video")
         width, height = media.video_geometry(info)
         preserve_english = request["params"].get("preserve_source_english", False)
-        footer = request["params"].get("footer_height", 0) if preserve_english else 0
-        if type(footer) is not int or footer < 0 or footer % 2:
-            raise ValueError("Invalid subtitle footer height")
+        footer = request["params"].get("footer_height", 0)
+        if type(footer) is not int or footer != 0:
+            raise ValueError("Subtitle footer is forbidden; preserve source dimensions (spec.md)")
         canvas_height = height + footer
         inline = preserve_english and footer == 0
         anchor = request["params"].get("source_subtitle_box") or next(
