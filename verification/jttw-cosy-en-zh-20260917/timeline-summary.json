@@ -1,0 +1,136 @@
+{
+  "schema": "ContinuousExperiment.v2",
+  "audio_order": "en-zh",
+  "units": [
+    {
+      "start_frame": 0,
+      "end_frame": 175,
+      "hold_frame": 174,
+      "dub": "voice-1/dub.wav",
+      "model_receipt": "voice-1/receipt.json",
+      "model_receipt_sha512": "10e3a29828947a5134573b37618416f21813d0b2c23ea895b03030bd3b72e2b546e0818c2864136df89906678e9215904d7c9d59d92a5e3af0db2cba22c58b37",
+      "raw_audio_sha512": "cd43df3933b3d3da2527beda10bee794adbc07899b55f6bd54d39a67db2c326fa6af775fbe4774a4609ed8e3e2da34d80cd88a7f2e2ac4cd38e8c720965fc16f",
+      "source_start_sample": 0,
+      "source_end_sample": 280272,
+      "output_start_sample": 0,
+      "output_end_sample": 646992,
+      "dub_samples": 270720,
+      "english_start_sample": 0,
+      "chinese_start_sample": 328272,
+      "video_speed": "5839/13479"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 360,
+      "hold_frame": 310,
+      "dub": "voice-2/dub.wav",
+      "model_receipt": "voice-2/receipt.json",
+      "model_receipt_sha512": "42bd19be9d7218e198cf496e16279b02691d2003576fbb2116f5bf00a846939acb676fe491238520457250ca27f330678a93fbe14275e2e89006e70e5e8e4bda",
+      "raw_audio_sha512": "3bea17e945f51edd0976930dcb22dd5f2d5ce76c4cf65239a03fd25de6f3d6c66a974ab3bf6594bb02d7bdc9485523b25ec22567d078030f4bea8bb59ab1a91d",
+      "source_start_sample": 280272,
+      "source_end_sample": 576576,
+      "output_start_sample": 646992,
+      "output_end_sample": 1319616,
+      "dub_samples": 280320,
+      "english_start_sample": 646992,
+      "chinese_start_sample": 991296,
+      "video_speed": "6173/14013"
+    },
+    {
+      "start_frame": 360,
+      "end_frame": 480,
+      "hold_frame": 410,
+      "dub": "voice-3/dub.wav",
+      "model_receipt": "voice-3/receipt.json",
+      "model_receipt_sha512": "548f429132a3d2db5def70662c157d19fe35d9307fd7d10e721b3b58555ed66d685711226418de146084f142cb1ca9e1f11d0a5134be6c8aa30f06e79ae4e2c9",
+      "raw_audio_sha512": "2e921a9eaf666becdf8bb73adbb37fec96d2f92b8b912aa2c84efaaaa54888b9b8ce085dcb24c72ee44e30f05fbf473f654f995456e3d400a3d5120dc0f00f5f",
+      "source_start_sample": 576576,
+      "source_end_sample": 768768,
+      "output_start_sample": 1319616,
+      "output_end_sample": 1757568,
+      "dub_samples": 149760,
+      "english_start_sample": 1319616,
+      "chinese_start_sample": 1559808,
+      "video_speed": "1001/2281"
+    }
+  ],
+  "output_samples": 1757568,
+  "quality_status": "REVIEW",
+  "pages": [
+    {
+      "start_frame": 28,
+      "end_frame": 175,
+      "english_box": [
+        340,
+        841,
+        1575,
+        977
+      ],
+      "text": "很久很久以前，一块石头高高地立在山顶上。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption1.png",
+      "chinese_box": [
+        565,
+        985,
+        1349,
+        1026
+      ]
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 339,
+      "english_box": [
+        325,
+        842,
+        1590,
+        977
+      ],
+      "text": "太阳、月亮、天空和大地，都对这块石头施展着魔法。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption2.png",
+      "chinese_box": [
+        487,
+        985,
+        1427,
+        1026
+      ]
+    },
+    {
+      "start_frame": 363,
+      "end_frame": 456,
+      "english_box": [
+        590,
+        916,
+        1330,
+        978
+      ],
+      "text": "一天，石头裂开了。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption3.png",
+      "chinese_box": [
+        782,
+        986,
+        1137,
+        1027
+      ]
+    }
+  ],
+  "inputs": {
+    "evidence/jttw-cosy-en-zh-20260917/experiment.json": "9cbe28dde07a18b6039126f836c2d0df51daf477138d2a0df6e8394c61b4931d3d565d0b1421d65c74de4915c6467b5950504e908225249b83d60941ba973ca7",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-lossless.mkv": "bf1b8a48842cdbc8b87c0a4517121e81fce18631569b2de1aa9d1717b7961e82f35c284649f1574a1c2952e30a0d6f62f76b96578b1b48ebceb701afe61c6b85",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-exact.wav": "442fd956a5e23159648ed0cee16ad492bb1be7ab9d558763a9d62859575dbfbec737cc04bba7a743655f069945b0f4104c2b7aab3790e58798c44ffe95c29db8",
+    "/System/Library/Fonts/STHeiti Medium.ttc": "2edf0a3583897b5c1be64c4bb88e4c8970c84464aa76af3265fb63c928abf0c696b7297ccdb28750d74d3feb4b2b4fb30729afc68ef78ef8c8bc3f947357eb7a",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/voice-1/dub.wav": "f613d70991770a3acfb879dc0468e0b839a793c23ad5b373f2bd1f56a5567ab636fc3c320702264391859823f1e201e4597082ec240174d31bd0cd50c10f8b74",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/voice-2/dub.wav": "1942cd967aed00a441eb709b02ad30c31ffa779603b9f64728b4adb4cba697a3d1baaba19b6519bb92d35bd5a4f56915852ea248b69b9de98ef9c91cc6ed40da",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/voice-3/dub.wav": "4fe49cf9384b71ff0f1bcaa40a8b843ff65efd98e7c5c678ad5abf2ca28766521e2c296f8c141dce20f6d764fea06190f2d9c88f36909284c7676c0e3c6d7174",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption1.png": "4d113ed93e832962d140a1e1f9617df2628005b9f67bea4ce9649f36cef5a23ff803491be24c2498cebbfef94f81c085af1efc4141bfc0f5b3d67b61bff9b891",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption2.png": "f3f062e622926f8b8d5a51f3dcdd847e559931801422267fc88d25c3bc604de56b0de7524d75891b88114f1cc95eda66908b83ab5df6d305fe9612d17d579337",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption3.png": "0e95586c592d420f6802b30f6e263a9943d80b544dfeeecd7829b938d8195f8f1a8be282017a562bf83f243db164d221e9deeacd6a21bc0bb827abb517a4e4ae"
+  },
+  "outputs": {
+    "combined.wav": "ff5f1e855535feeed270664b073766fbced38990ef13d2c087788ee62601d94b7e6ba3d98d16fe77bcdf785e57ee41db5dbce18c8a967fab4df9090b50c07a8f",
+    "continuous.mkv": "576d05b427313ba6324bad3398a2018332bde7004cb8dc32a628839d8c650c087b7032a61320a5ed169afa41d51b9c454f39949080e015df72f98cef090c0268",
+    "continuous.mp4": "9b77a52ca3c3fa0d838ea763062c6d18319bce3149fbe555c4d8e6052693051597cb865743424d687f3179e9c1a7021c30da4be13abfdc16c1e9457a5f7a6475",
+    "hold.mkv": "2b4b70b14c3512d65deb9cb9f822c2de410fd1c9b420996c052246a1026eac5ad292b402efbf0fe9d7796e193d097607ef05789d7aa87ee965917ed750cefa2a",
+    "hold.mp4": "d346084b9d3423bb9fc8a1b39c90fd79f9abf2197674630332cfcb37dffbb8aa26da284e156f952581e9cc647cc92fb2aad044961aa1b97843f806a26f03c338"
+  },
+  "human_listening": "REVIEW",
+  "formal_acceptance": "REVIEW"
+}

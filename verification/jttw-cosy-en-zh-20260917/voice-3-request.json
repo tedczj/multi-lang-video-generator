@@ -1,0 +1,41 @@
+{
+  "node": "N11",
+  "strategy_id": "cosyvoice3_zero_shot",
+  "models": [
+    {
+      "model_id": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+      "revision": "29e01c4e8d000f4bcd70751be16fa94bf3d85a18",
+      "python": "/Volumes/备份/mlvideo-phase2-model-tests-20260912/cosy-env/bin/python",
+      "source_dir": "/Volumes/备份/mlvideo-phase2-model-tests-20260912/CosyVoice",
+      "model_dir": "/Volumes/备份/mlvideo-phase2-model-tests-20260912/Fun-CosyVoice3-0.5B-2512"
+    }
+  ],
+  "params": {
+    "unit_id": "jttw-3",
+    "seed": 42
+  },
+  "inputs": {
+    "audio": [
+      {
+        "path": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/narrator-reference.wav",
+        "sha512": "947ca5e8d460e45d865d684e76ae51a307d017d73593a5f389f7fa98bf7f6fe1cc4cf433ad82d490e83528cd461af804bbe93091dd979ceda62a81325538be1a",
+        "artifact_id": "local-jttw-audio-3"
+      }
+    ],
+    "reference": [
+      {
+        "path": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/reference.json",
+        "sha512": "e6cf342c960594ad15e6159f97334c1c25bc65081036800be241192598c5a390392ab195423623d598f62b5943c06bb159ea8c4139f0fb580b5cd3ba752929b0",
+        "artifact_id": "local-jttw-reference-3"
+      }
+    ],
+    "translation": [
+      {
+        "path": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/voice-3/translation.json",
+        "sha512": "36bef4f2d32fabee5184da6c8c4b936e6b4a3c55414bfcf9dfc1e0319661635ff11f37eb95833f07387dc60598ad2494626429d2874eec96abaa7c2d9a86044e",
+        "artifact_id": "local-jttw-translation-3"
+      }
+    ]
+  },
+  "output_dir": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-cosy-en-zh-20260917/voice-3"
+}

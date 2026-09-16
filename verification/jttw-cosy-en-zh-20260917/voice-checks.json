@@ -1,0 +1,233 @@
+[
+  {
+    "unit": 1,
+    "seconds": 5.64,
+    "raw_sha512": "cd43df3933b3d3da2527beda10bee794adbc07899b55f6bd54d39a67db2c326fa6af775fbe4774a4609ed8e3e2da34d80cd88a7f2e2ac4cd38e8c720965fc16f",
+    "pcm_sha512": "f613d70991770a3acfb879dc0468e0b839a793c23ad5b373f2bd1f56a5567ab636fc3c320702264391859823f1e201e4597082ec240174d31bd0cd50c10f8b74",
+    "model_receipt": {
+      "backend": "pytorch",
+      "chunk_frames": [
+        135360
+      ],
+      "device": "cpu",
+      "dtype": "torch.float32",
+      "generation_seconds": 14.148362125037238,
+      "packages": {
+        "numpy": "1.26.4",
+        "onnxruntime": "1.18.0",
+        "torch": "2.3.1",
+        "torchaudio": "2.3.1",
+        "transformers": "4.51.3"
+      },
+      "requested_model": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+      "resolved_model": "CosyVoice3",
+      "revision": "29e01c4e8d000f4bcd70751be16fa94bf3d85a18",
+      "sample_rate": 24000,
+      "seed": 42,
+      "source_commit": "074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc",
+      "source_dirty": true,
+      "source_snapshot_sha512": "cb458503a18be286618033a23a3851701c7ab510cc81d79127c27faad93f85b548cce1b00928a661cb2f74ab2421d9f2b323b196d1ba4784a1973cb1163d7517",
+      "source_tree_sha512": "2a6ca2a255fc0fc4215db7544f348312429c037f01354e1a7971d04c848765e2ce55eba43a8297c9911c91b2ce6fbeda35e2e13410bc75cd79e831e74a303d39",
+      "unknown_reason": "Revision from local HF download metadata; full checkpoint hash not measured by this invocation",
+      "weight_sha512": null
+    },
+    "audio_qa": {
+      "overall": "REVIEW",
+      "method": "energy-v1: 20ms RMS, 3 consecutive windows above -40dBFS; not word alignment",
+      "leading_review_seconds": 1.0,
+      "source_sha512": "cd43df3933b3d3da2527beda10bee794adbc07899b55f6bd54d39a67db2c326fa6af775fbe4774a4609ed8e3e2da34d80cd88a7f2e2ac4cd38e8c720965fc16f",
+      "sample_rate": 24000,
+      "channels": 1,
+      "frames": 135360,
+      "peak": 0.9900000095367432,
+      "energy_onset_seconds": 0.0,
+      "checks": [
+        {
+          "id": "decode",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "clipping",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "non_silent",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "leading_audio",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "content_and_tail",
+          "status": "SKIPPED",
+          "required": true
+        },
+        {
+          "id": "human_listening",
+          "status": "SKIPPED",
+          "required": true
+        }
+      ],
+      "trimmed_samples": 0
+    }
+  },
+  {
+    "unit": 2,
+    "seconds": 5.84,
+    "raw_sha512": "3bea17e945f51edd0976930dcb22dd5f2d5ce76c4cf65239a03fd25de6f3d6c66a974ab3bf6594bb02d7bdc9485523b25ec22567d078030f4bea8bb59ab1a91d",
+    "pcm_sha512": "1942cd967aed00a441eb709b02ad30c31ffa779603b9f64728b4adb4cba697a3d1baaba19b6519bb92d35bd5a4f56915852ea248b69b9de98ef9c91cc6ed40da",
+    "model_receipt": {
+      "backend": "pytorch",
+      "chunk_frames": [
+        140160
+      ],
+      "device": "cpu",
+      "dtype": "torch.float32",
+      "generation_seconds": 11.776509624905884,
+      "packages": {
+        "numpy": "1.26.4",
+        "onnxruntime": "1.18.0",
+        "torch": "2.3.1",
+        "torchaudio": "2.3.1",
+        "transformers": "4.51.3"
+      },
+      "requested_model": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+      "resolved_model": "CosyVoice3",
+      "revision": "29e01c4e8d000f4bcd70751be16fa94bf3d85a18",
+      "sample_rate": 24000,
+      "seed": 42,
+      "source_commit": "074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc",
+      "source_dirty": true,
+      "source_snapshot_sha512": "cb458503a18be286618033a23a3851701c7ab510cc81d79127c27faad93f85b548cce1b00928a661cb2f74ab2421d9f2b323b196d1ba4784a1973cb1163d7517",
+      "source_tree_sha512": "2a6ca2a255fc0fc4215db7544f348312429c037f01354e1a7971d04c848765e2ce55eba43a8297c9911c91b2ce6fbeda35e2e13410bc75cd79e831e74a303d39",
+      "unknown_reason": "Revision from local HF download metadata; full checkpoint hash not measured by this invocation",
+      "weight_sha512": null
+    },
+    "audio_qa": {
+      "overall": "REVIEW",
+      "method": "energy-v1: 20ms RMS, 3 consecutive windows above -40dBFS; not word alignment",
+      "leading_review_seconds": 1.0,
+      "source_sha512": "3bea17e945f51edd0976930dcb22dd5f2d5ce76c4cf65239a03fd25de6f3d6c66a974ab3bf6594bb02d7bdc9485523b25ec22567d078030f4bea8bb59ab1a91d",
+      "sample_rate": 24000,
+      "channels": 1,
+      "frames": 140160,
+      "peak": 0.9900000095367432,
+      "energy_onset_seconds": 0.0,
+      "checks": [
+        {
+          "id": "decode",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "clipping",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "non_silent",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "leading_audio",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "content_and_tail",
+          "status": "SKIPPED",
+          "required": true
+        },
+        {
+          "id": "human_listening",
+          "status": "SKIPPED",
+          "required": true
+        }
+      ],
+      "trimmed_samples": 0
+    }
+  },
+  {
+    "unit": 3,
+    "seconds": 3.12,
+    "raw_sha512": "2e921a9eaf666becdf8bb73adbb37fec96d2f92b8b912aa2c84efaaaa54888b9b8ce085dcb24c72ee44e30f05fbf473f654f995456e3d400a3d5120dc0f00f5f",
+    "pcm_sha512": "4fe49cf9384b71ff0f1bcaa40a8b843ff65efd98e7c5c678ad5abf2ca28766521e2c296f8c141dce20f6d764fea06190f2d9c88f36909284c7676c0e3c6d7174",
+    "model_receipt": {
+      "backend": "pytorch",
+      "chunk_frames": [
+        74880
+      ],
+      "device": "cpu",
+      "dtype": "torch.float32",
+      "generation_seconds": 8.976084084017202,
+      "packages": {
+        "numpy": "1.26.4",
+        "onnxruntime": "1.18.0",
+        "torch": "2.3.1",
+        "torchaudio": "2.3.1",
+        "transformers": "4.51.3"
+      },
+      "requested_model": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+      "resolved_model": "CosyVoice3",
+      "revision": "29e01c4e8d000f4bcd70751be16fa94bf3d85a18",
+      "sample_rate": 24000,
+      "seed": 42,
+      "source_commit": "074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc",
+      "source_dirty": true,
+      "source_snapshot_sha512": "cb458503a18be286618033a23a3851701c7ab510cc81d79127c27faad93f85b548cce1b00928a661cb2f74ab2421d9f2b323b196d1ba4784a1973cb1163d7517",
+      "source_tree_sha512": "2a6ca2a255fc0fc4215db7544f348312429c037f01354e1a7971d04c848765e2ce55eba43a8297c9911c91b2ce6fbeda35e2e13410bc75cd79e831e74a303d39",
+      "unknown_reason": "Revision from local HF download metadata; full checkpoint hash not measured by this invocation",
+      "weight_sha512": null
+    },
+    "audio_qa": {
+      "overall": "REVIEW",
+      "method": "energy-v1: 20ms RMS, 3 consecutive windows above -40dBFS; not word alignment",
+      "leading_review_seconds": 1.0,
+      "source_sha512": "2e921a9eaf666becdf8bb73adbb37fec96d2f92b8b912aa2c84efaaaa54888b9b8ce085dcb24c72ee44e30f05fbf473f654f995456e3d400a3d5120dc0f00f5f",
+      "sample_rate": 24000,
+      "channels": 1,
+      "frames": 74880,
+      "peak": 0.9900000095367432,
+      "energy_onset_seconds": 0.0,
+      "checks": [
+        {
+          "id": "decode",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "clipping",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "non_silent",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "leading_audio",
+          "status": "PASS",
+          "required": true
+        },
+        {
+          "id": "content_and_tail",
+          "status": "SKIPPED",
+          "required": true
+        },
+        {
+          "id": "human_listening",
+          "status": "SKIPPED",
+          "required": true
+        }
+      ],
+      "trimmed_samples": 0
+    }
+  }
+]

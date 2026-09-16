@@ -28,14 +28,19 @@ def test_every_frame_once_and_complete_pcm():
     voices = [b"\x05\x06\x07\x08" * n for n in dubs]
     output = mix(source, voices, t)
     for u, v in zip(t["units"], voices):
-        a = u["output_start_sample"] * 4
+        a = u["chinese_start_sample"] * 4
         assert output[a : a + len(v)] == v
         a, n = u["english_start_sample"] * 4, 240000 * 4
         assert (
             output[a : a + n]
             == source[u["source_start_sample"] * 4 : u["source_end_sample"] * 4]
         )
-        assert output[a - 48000 * 4 : a] == bytes(48000 * 4)
+        assert a == u["output_start_sample"] * 4
+        zh = u["chinese_start_sample"] * 4
+        assert zh == a + n + 48000 * 4
+        assert output[zh - 48000 * 4 : zh] == bytes(48000 * 4)
+    assert t["schema"] == "ContinuousExperiment.v2"
+    assert t["audio_order"] == "en-zh"
     assert len(output) == t["output_samples"] * 4
     assert all(Fraction(u["video_speed"]) >= Fraction(2, 5) for u in t["units"])
 
@@ -77,6 +82,12 @@ def test_changed_audio_is_rejected(tmp_path):
     t = plan(pts, groups, dubs)
     with pytest.raises(ValueError):
         mix(bytes(480000 * 4), [b"", b""], t)
+    with pytest.raises(ValueError, match="English-first"):
+        mix(
+            bytes(480000 * 4),
+            [bytes(n * 4) for n in dubs],
+            t | {"schema": "ContinuousExperiment.v1"},
+        )
     with pytest.raises(ValueError):
         mix(bytes(4), [bytes(n * 4) for n in dubs], t)
     import wave

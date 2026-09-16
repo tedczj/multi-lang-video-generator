@@ -1,0 +1,20 @@
+[
+  {
+    "unit": 1,
+    "requested": "很久很久以前，一块石头高高地立在山顶上。",
+    "asr": "很久很久以前,一塊石頭高高地立在山頂上。",
+    "method": "Whisper small zh; auxiliary only, not human approval"
+  },
+  {
+    "unit": 2,
+    "requested": "太阳、月亮、天空和大地，都对这块石头施展着魔法。",
+    "asr": "太陽、月亮、天空和大地都對這塊石頭施展著魔法",
+    "method": "Whisper small zh; auxiliary only, not human approval"
+  },
+  {
+    "unit": 3,
+    "requested": "一天，石头裂开了。",
+    "asr": "一天石頭裂開了",
+    "method": "Whisper small zh; auxiliary only, not human approval"
+  }
+]

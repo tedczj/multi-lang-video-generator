@@ -1,0 +1,100 @@
+{
+  "source": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-lossless.mkv",
+  "audio": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-exact.wav",
+  "font": "/System/Library/Fonts/STHeiti Medium.ttc",
+  "groups": [
+    {
+      "start_frame": 0,
+      "end_frame": 175,
+      "hold_frame": 174,
+      "dub": "voice-1/dub.wav",
+      "model_receipt": "voice-1/receipt.json",
+      "model_receipt_sha512": "10e3a29828947a5134573b37618416f21813d0b2c23ea895b03030bd3b72e2b546e0818c2864136df89906678e9215904d7c9d59d92a5e3af0db2cba22c58b37",
+      "raw_audio_sha512": "cd43df3933b3d3da2527beda10bee794adbc07899b55f6bd54d39a67db2c326fa6af775fbe4774a4609ed8e3e2da34d80cd88a7f2e2ac4cd38e8c720965fc16f"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 360,
+      "hold_frame": 310,
+      "dub": "voice-2/dub.wav",
+      "model_receipt": "voice-2/receipt.json",
+      "model_receipt_sha512": "42bd19be9d7218e198cf496e16279b02691d2003576fbb2116f5bf00a846939acb676fe491238520457250ca27f330678a93fbe14275e2e89006e70e5e8e4bda",
+      "raw_audio_sha512": "3bea17e945f51edd0976930dcb22dd5f2d5ce76c4cf65239a03fd25de6f3d6c66a974ab3bf6594bb02d7bdc9485523b25ec22567d078030f4bea8bb59ab1a91d"
+    },
+    {
+      "start_frame": 360,
+      "end_frame": 480,
+      "hold_frame": 410,
+      "dub": "voice-3/dub.wav",
+      "model_receipt": "voice-3/receipt.json",
+      "model_receipt_sha512": "548f429132a3d2db5def70662c157d19fe35d9307fd7d10e721b3b58555ed66d685711226418de146084f142cb1ca9e1f11d0a5134be6c8aa30f06e79ae4e2c9",
+      "raw_audio_sha512": "2e921a9eaf666becdf8bb73adbb37fec96d2f92b8b912aa2c84efaaaa54888b9b8ce085dcb24c72ee44e30f05fbf473f654f995456e3d400a3d5120dc0f00f5f"
+    }
+  ],
+  "pages": [
+    {
+      "start_frame": 28,
+      "end_frame": 175,
+      "english_box": [
+        340,
+        841,
+        1575,
+        977
+      ],
+      "text": "很久很久以前，一块石头高高地立在山顶上。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption1.png"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 339,
+      "english_box": [
+        325,
+        842,
+        1590,
+        977
+      ],
+      "text": "太阳、月亮、天空和大地，都对这块石头施展着魔法。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption2.png"
+    },
+    {
+      "start_frame": 363,
+      "end_frame": 456,
+      "english_box": [
+        590,
+        916,
+        1330,
+        978
+      ],
+      "text": "一天，石头裂开了。",
+      "evidence": "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption3.png"
+    }
+  ],
+  "speech_intervals": [
+    [
+      39168,
+      247488
+    ],
+    [
+      288768,
+      519168
+    ],
+    [
+      579648,
+      685248
+    ]
+  ],
+  "lineage": {
+    "source_video_id": "73XAgADpBqY",
+    "source_frames": [
+      720,
+      1200
+    ],
+    "source_audio_samples": [
+      1153152,
+      1921920
+    ],
+    "asr": "source-asr.json",
+    "voice": "CosyVoice3 zero-shot; source narrator reference 24.64-35.10s; human timbre REVIEW",
+    "reference_sha512": "947ca5e8d460e45d865d684e76ae51a307d017d73593a5f389f7fa98bf7f6fe1cc4cf433ad82d490e83528cd461af804bbe93091dd979ceda62a81325538be1a"
+  }
+}

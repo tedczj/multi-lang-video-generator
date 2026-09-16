@@ -1,0 +1,9 @@
+{
+  "cosyvoice_directory": "/Volumes/\u5907\u4efd/mlvideo-phase2-model-tests-20260912",
+  "speaker_directory": "/Volumes/\u5907\u4efd/mlvideo-speaker-models-20260912",
+  "method": "Rename out of same NAS recycle bin; restore interpreter symlinks from pyvenv.cfg; no model download",
+  "runtime_imports": "torch 2.3.1, torchaudio 2.3.1, numpy, whisper succeeded",
+  "cosyvoice_inference": "3 real zero-shot generations completed",
+  "model_weight_hashes": "Not rehashed in full; revision validated and model actually loaded",
+  "source_environment": "Original model/source receipts retained; not a claim of bit-for-bit recovery of every deleted environment file"
+}

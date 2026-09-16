@@ -1,4 +1,4 @@
-"""Bounded, standalone Chinese-first continuous-video A/B experiment.
+"""Bounded, standalone English-first continuous-video A/B experiment.
 
 The manifest uses original frame indices; it is not an N16 Timeline.v1 artifact.
 """
@@ -69,7 +69,8 @@ def plan(pts, groups, dub_samples):
             output_start_sample=output,
             output_end_sample=output + length,
             dub_samples=n,
-            english_start_sample=output + n + SR,
+            english_start_sample=output,
+            chinese_start_sample=output + duration + SR,
             video_speed=str(speed),
         )
         units.append(unit)
@@ -91,7 +92,8 @@ def plan(pts, groups, dub_samples):
     if cursor != len(pts) - 1:
         raise ValueError("Uncovered source tail")
     return {
-        "schema": "ContinuousExperiment.v1",
+        "schema": "ContinuousExperiment.v2",
+        "audio_order": "en-zh",
         "units": units,
         "continuous": continuous,
         "hold": hold,
@@ -101,6 +103,11 @@ def plan(pts, groups, dub_samples):
 
 
 def mix(source, dubs, timeline):
+    if (
+        timeline.get("schema") != "ContinuousExperiment.v2"
+        or timeline.get("audio_order") != "en-zh"
+    ):
+        raise ValueError("Only English-first v2 timelines may generate new audio")
     if len(source) // 4 != timeline["units"][-1]["source_end_sample"]:
         raise ValueError("Source audio length differs from timeline")
     if len(dubs) != len(timeline["units"]):
@@ -110,9 +117,9 @@ def mix(source, dubs, timeline):
     for u, dub in zip(timeline["units"], dubs, strict=True):
         if len(dub) != u["dub_samples"] * 4:
             raise ValueError("Dub duration changed")
-        result.extend(dub)
-        result.extend(silence)
         result.extend(source[u["source_start_sample"] * 4 : u["source_end_sample"] * 4])
+        result.extend(silence)
+        result.extend(dub)
         result.extend(silence)
     if len(result) != timeline["output_samples"] * 4:
         raise ValueError("Output PCM length mismatch")

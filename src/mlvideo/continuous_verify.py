@@ -30,20 +30,27 @@ def verify(directory):
     cursor = 0
     for u, g in zip(t["units"], manifest["groups"], strict=True):
         dub = pcm(base / g["dub"])
-        n = len(dub)
-        if combined[cursor : cursor + n] != dub:
-            raise ValueError("Chinese PCM changed")
-        cursor += n
-        if combined[cursor : cursor + SR * 4] != bytes(SR * 4):
-            raise ValueError("Missing language gap")
-        cursor += SR * 4
         start, end = u["source_start_sample"] * 4, u["source_end_sample"] * 4
-        if combined[cursor : cursor + end - start] != source_audio[start:end]:
-            raise ValueError("English/source PCM changed")
-        cursor += end - start
-        if combined[cursor : cursor + SR * 4] != bytes(SR * 4):
-            raise ValueError("Missing group gap")
-        cursor += SR * 4
+        english = source_audio[start:end]
+        if t["schema"] == "ContinuousExperiment.v1":
+            segments = [("Chinese", dub), ("English", english)]
+        elif t["schema"] == "ContinuousExperiment.v2" and t["audio_order"] == "en-zh":
+            if (
+                u["english_start_sample"] * 4 != cursor
+                or u["chinese_start_sample"] * 4 != cursor + len(english) + SR * 4
+            ):
+                raise ValueError("English/Chinese placement mismatch")
+            segments = [("English", english), ("Chinese", dub)]
+        else:
+            raise ValueError("Unsupported experiment audio order")
+        for language, segment in segments:
+            n = len(segment)
+            if combined[cursor : cursor + n] != segment:
+                raise ValueError(f"{language} PCM/order changed")
+            cursor += n
+            if combined[cursor : cursor + SR * 4] != bytes(SR * 4):
+                raise ValueError("Missing language/group gap")
+            cursor += SR * 4
     if cursor != len(combined):
         raise ValueError("Unaccounted audio tail")
 

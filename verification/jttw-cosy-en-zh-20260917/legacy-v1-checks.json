@@ -1,0 +1,34 @@
+{
+  "automated_checks": "PASS",
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "output_seconds": 34.301375,
+  "variants": {
+    "continuous": {
+      "frames": 480,
+      "max_frame_timestamp_error_samples": 24,
+      "max_thumbnail_mae": 1.5292245149612427,
+      "decoded_pcm_equal": true,
+      "mp4_full_decode": true,
+      "video_end_error_samples": 30,
+      "output_sha512": "b3f346a0c4025b711d39fdc811e77890878b444f0aae52d6e9fe8b9df68e1e2a978de8b35f279afedf3f2e3beda9c1b25fd692287257bf1eacfc24b0326911bb"
+    },
+    "hold": {
+      "frames": 1030,
+      "max_frame_timestamp_error_samples": 24,
+      "max_thumbnail_mae": 1.5295138359069824,
+      "decoded_pcm_equal": true,
+      "mp4_full_decode": true,
+      "video_end_error_samples": 18,
+      "output_sha512": "9ee7e8b3d984057e95cf505588974ebdc7c95596ed2a32e28169911d9a1e4978d8fe98900e0810eabdf6b807b4de97f875bd93d9f7da08b52dad432b88512a14"
+    }
+  },
+  "source_frames": 480,
+  "continuous_added_hold_frames": 0,
+  "pixel_comparison": "Lossy H.264: per-frame central ROI thumbnail MAE <= 8; not pixel identity or human motion acceptance",
+  "subtitle_layout": "Geometric checks in renderer; source page detection and visual review remain separate",
+  "human_listening": "REVIEW",
+  "formal_acceptance": "REVIEW"
+}
