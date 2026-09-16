@@ -1,0 +1,123 @@
+{
+  "schema": "ContinuousExperiment.v1",
+  "units": [
+    {
+      "start_frame": 0,
+      "end_frame": 175,
+      "hold_frame": 174,
+      "dub": "zh-1.wav",
+      "source_start_sample": 0,
+      "source_end_sample": 280272,
+      "output_start_sample": 0,
+      "output_end_sample": 598977,
+      "dub_samples": 222705,
+      "english_start_sample": 270705,
+      "video_speed": "93424/199659"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 360,
+      "hold_frame": 310,
+      "dub": "zh-2.wav",
+      "source_start_sample": 280272,
+      "source_end_sample": 576576,
+      "output_start_sample": 598977,
+      "output_end_sample": 1263928,
+      "dub_samples": 272647,
+      "english_start_sample": 919624,
+      "video_speed": "296304/664951"
+    },
+    {
+      "start_frame": 360,
+      "end_frame": 480,
+      "hold_frame": 410,
+      "dub": "zh-3.wav",
+      "source_start_sample": 576576,
+      "source_end_sample": 768768,
+      "output_start_sample": 1263928,
+      "output_end_sample": 1646466,
+      "dub_samples": 94346,
+      "english_start_sample": 1406274,
+      "video_speed": "7392/14713"
+    }
+  ],
+  "output_samples": 1646466,
+  "quality_status": "REVIEW",
+  "pages": [
+    {
+      "start_frame": 28,
+      "end_frame": 175,
+      "english_box": [
+        340,
+        841,
+        1575,
+        977
+      ],
+      "text": "很久很久以前，一块石头高高地立在山顶上。",
+      "evidence": "caption1.png",
+      "chinese_box": [
+        565,
+        985,
+        1349,
+        1026
+      ]
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 339,
+      "english_box": [
+        325,
+        842,
+        1590,
+        977
+      ],
+      "text": "太阳、月亮、天空和大地，都对这块石头施展着魔法。",
+      "evidence": "caption2.png",
+      "chinese_box": [
+        487,
+        985,
+        1427,
+        1026
+      ]
+    },
+    {
+      "start_frame": 363,
+      "end_frame": 456,
+      "english_box": [
+        590,
+        916,
+        1330,
+        978
+      ],
+      "text": "一天，石头裂开了。",
+      "evidence": "caption3.png",
+      "chinese_box": [
+        782,
+        986,
+        1137,
+        1027
+      ]
+    }
+  ],
+  "inputs": {
+    "evidence/jttw-analysis-20260917/experiment-v2.json": "46a6e0502e3c5ca8525f6b51f24ea6f4fde324dd65eb36da0a0ba4ffdda6ba2d2bf0418dfa97565c4ed7bfaebce3431a9db1d5f0b9d08f25f128ae2173c38dd4",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-lossless.mkv": "bf1b8a48842cdbc8b87c0a4517121e81fce18631569b2de1aa9d1717b7961e82f35c284649f1574a1c2952e30a0d6f62f76b96578b1b48ebceb701afe61c6b85",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/excerpt-exact.wav": "442fd956a5e23159648ed0cee16ad492bb1be7ab9d558763a9d62859575dbfbec737cc04bba7a743655f069945b0f4104c2b7aab3790e58798c44ffe95c29db8",
+    "/System/Library/Fonts/STHeiti Medium.ttc": "2edf0a3583897b5c1be64c4bb88e4c8970c84464aa76af3265fb63c928abf0c696b7297ccdb28750d74d3feb4b2b4fb30729afc68ef78ef8c8bc3f947357eb7a",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/zh-1.wav": "c416b1d5ff93a9b727197a92f44244a1a7701f6810420ece23f6c6d27f170444db60585763ce948714f663504d08aba4830e9f955886ae664d31e9ae22123279",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/zh-2.wav": "54f2aca165318dc2feed014c94fbfab58a35151b4f97c0b57b2408e364586c72e723b9f2df955e3d85fffbe390d486bae70b7d04e50b9b3f1e11a9a4124e5a72",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/zh-3.wav": "4e3a113c35927acc59e0c57e4c77085f074734673071683ce64cecd3b704c8b0ffaa6cc2eb0a4fece203509e76fc53c612d56cb0f5f373354febaca4b8dd764c",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption1.png": "4d113ed93e832962d140a1e1f9617df2628005b9f67bea4ce9649f36cef5a23ff803491be24c2498cebbfef94f81c085af1efc4141bfc0f5b3d67b61bff9b891",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption2.png": "f3f062e622926f8b8d5a51f3dcdd847e559931801422267fc88d25c3bc604de56b0de7524d75891b88114f1cc95eda66908b83ab5df6d305fe9612d17d579337",
+    "/Users/tedczj/workspace/multi-lang-video-generator/evidence/jttw-analysis-20260917/caption3.png": "0e95586c592d420f6802b30f6e263a9943d80b544dfeeecd7829b938d8195f8f1a8be282017a562bf83f243db164d221e9deeacd6a21bc0bb827abb517a4e4ae"
+  },
+  "outputs": {
+    "combined.wav": "8ff13d36c6156753302f6fbdfc5841c047e2b8eb4dd12e5c50928b7b6b7f1f2187eca4dce22d8a6154423e1196882733fdfcac60ce1c1d9c810e69e0ca5dbe96",
+    "continuous.mkv": "b3f346a0c4025b711d39fdc811e77890878b444f0aae52d6e9fe8b9df68e1e2a978de8b35f279afedf3f2e3beda9c1b25fd692287257bf1eacfc24b0326911bb",
+    "continuous.mp4": "d6d6ed64c9af318a0f66d8e197f4b82ef4d4f2fccf9f58b7aef23a738e5b30b9f51b105ec3f0928ffbd770e9153b3dadb626aa833614a746b6139b16b3bf1da4",
+    "hold.mp4": "894814f35be50658019b10d20f9e5114e34d4af02cd302b6943287ab26538cc2db9319fcf0dee0636040715691718371693f4ba0c31edb27f33400e6c21d4b2c",
+    "hold.mkv": "9ee7e8b3d984057e95cf505588974ebdc7c95596ed2a32e28169911d9a1e4978d8fe98900e0810eabdf6b807b4de97f875bd93d9f7da08b52dad432b88512a14"
+  },
+  "human_listening": "REVIEW",
+  "formal_acceptance": "REVIEW"
+}

@@ -1,0 +1,90 @@
+{
+  "source": "excerpt-lossless.mkv",
+  "audio": "excerpt-exact.wav",
+  "font": "/System/Library/Fonts/STHeiti Medium.ttc",
+  "groups": [
+    {
+      "start_frame": 0,
+      "end_frame": 175,
+      "hold_frame": 174,
+      "dub": "zh-1.wav"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 360,
+      "hold_frame": 310,
+      "dub": "zh-2.wav"
+    },
+    {
+      "start_frame": 360,
+      "end_frame": 480,
+      "hold_frame": 410,
+      "dub": "zh-3.wav"
+    }
+  ],
+  "pages": [
+    {
+      "start_frame": 28,
+      "end_frame": 175,
+      "english_box": [
+        340,
+        841,
+        1575,
+        977
+      ],
+      "text": "很久很久以前，一块石头高高地立在山顶上。",
+      "evidence": "caption1.png"
+    },
+    {
+      "start_frame": 175,
+      "end_frame": 339,
+      "english_box": [
+        325,
+        842,
+        1590,
+        977
+      ],
+      "text": "太阳、月亮、天空和大地，都对这块石头施展着魔法。",
+      "evidence": "caption2.png"
+    },
+    {
+      "start_frame": 363,
+      "end_frame": 456,
+      "english_box": [
+        590,
+        916,
+        1330,
+        978
+      ],
+      "text": "一天，石头裂开了。",
+      "evidence": "caption3.png"
+    }
+  ],
+  "speech_intervals": [
+    [
+      39168,
+      247488
+    ],
+    [
+      288768,
+      519168
+    ],
+    [
+      579648,
+      685248
+    ]
+  ],
+  "lineage": {
+    "source_video_id": "73XAgADpBqY",
+    "source_frames": [
+      720,
+      1200
+    ],
+    "source_audio_samples": [
+      1153152,
+      1921920
+    ],
+    "asr": "source-asr.json",
+    "voice": "macOS say Tingting; naturalness REVIEW"
+  }
+}

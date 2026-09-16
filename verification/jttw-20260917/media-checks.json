@@ -1,0 +1,30 @@
+{
+  "automated_checks": "PASS",
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "output_seconds": 34.301375,
+  "variants": {
+    "continuous": {
+      "frames": 480,
+      "max_frame_timestamp_error_samples": 24,
+      "max_thumbnail_mae": 1.5292245149612427,
+      "decoded_pcm_equal": true,
+      "output_sha512": "3979d8e33004b0a6e911a0e9d9ff6d9be58d9778da937dd2bab6145e227d29f8ba181b129f3c7b0bc899b65212224fa71636323d9c6faa6dd8b56a1e44a31ed8"
+    },
+    "hold": {
+      "frames": 1030,
+      "max_frame_timestamp_error_samples": 24,
+      "max_thumbnail_mae": 1.5295138359069824,
+      "decoded_pcm_equal": true,
+      "output_sha512": "f26c5c447f3a3e545561e0cb3c11a776b82e6c59333037ccce762dafd9a52bc7de0d29ab0d07478bad2559b81dd29a16a85bb4f91f0f2ce8eede83939cfbfe73"
+    }
+  },
+  "source_frames": 480,
+  "continuous_added_hold_frames": 0,
+  "pixel_comparison": "Lossy H.264: per-frame central ROI thumbnail MAE <= 8; not pixel identity or human motion acceptance",
+  "subtitle_layout": "Geometric checks in renderer; source page detection and visual review remain separate",
+  "human_listening": "REVIEW",
+  "formal_acceptance": "REVIEW"
+}

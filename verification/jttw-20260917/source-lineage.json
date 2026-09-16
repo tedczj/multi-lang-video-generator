@@ -1,0 +1,13 @@
+{
+  "source_video_frames": [
+    720,
+    1200
+  ],
+  "excerpt_frames": 480,
+  "decoded_yuv_framemd5_equal": true,
+  "source_pcm_samples": [
+    1153152,
+    1921920
+  ],
+  "note": "Frame-level lossless excerpt, no resizing/cropping/interpolation; outputs H.264 CRF18 are lossy. English ASR boundaries are estimates and human listening remains REVIEW."
+}

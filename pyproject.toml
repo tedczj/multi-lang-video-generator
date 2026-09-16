@@ -10,6 +10,7 @@ dependencies = ["PyMySQL[rsa]>=1.1", "jsonschema>=4.23", "psutil>=6", "yt-dlp==2
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+analysis = ["numpy>=2,<3"]
 studio = ["fastapi>=0.128.2,<1", "uvicorn>=0.48,<1"]
 studio-test = ["httpx>=0.28,<1"]
 
