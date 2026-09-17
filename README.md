@@ -7,6 +7,17 @@ Mac 主控、MySQL 8.4、单写入者和独立 worker 的版本化媒体流水�
 第一期已于 2026-09-12 验收 PASS：34 个测试通过、14 个验收 ID 全部通过，详见 [最终验收报告](docs/verification/PHASE_1_ACCEPTANCE_ZH.md)。第二期已接入真实翻译、ASR/VAD、CosyVoice3 与双语候选成片链路，见 [整体验证与问题记录](docs/verification/PHASE_2_FULL_VERIFICATION_ZH.md)。正式视频集和人工质量验收仍未完成；第三期待开发。
 
 
+## 单 URL 自动成片（2026-09-18）
+
+```bash
+./scripts/generate_video.sh 'https://www.youtube.com/watch?v=73XAgADpBqY'
+```
+
+按段英文→中文，英中之间不添加停顿，CosyVoice3 配音，连续画面，最终只交付 MP4。已完成整集技术实跑；音色、角色身份和正式质量仍需复核。此目录式入口暂不回写 Studio/MySQL 队列。
+
+[使用、配置与恢复说明](docs/GENERATE_VIDEO_ZH.md) · [实现设计](docs/URL_TO_MP4_DESIGN_ZH.md) · [实跑与测试证据](verification/url-to-mp4-20260918/README.md)
+
+
 ## 系列角色配音工作台（本次增量）
 
 新增本机管理页：系列/角色库、原声分段试听、手工与批量标注、参考音频批准、固定声音配置、中文测试与发布、版本化逐句配音、音频选用和候选成片。继续使用当前 MySQL 与 CosyVoice3，不引入第二套生产数据库，不需要 npm 或前端 CDN。

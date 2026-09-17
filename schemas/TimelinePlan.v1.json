@@ -49,6 +49,9 @@
         "type": "integer",
         "minimum": 0
       }
+    },
+    "audio_gap_policy": {
+      "const": "immediate_en_zh_v1"
     }
   },
   "required": [

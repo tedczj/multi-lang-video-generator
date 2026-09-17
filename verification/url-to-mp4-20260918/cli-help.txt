@@ -1,0 +1,15 @@
+usage: generate.py [-h] [--config CONFIG] [--work WORK] [--output OUTPUT]
+                   [--resume]
+                   url
+
+One YouTube URL -> one MP4, with resumable, source-bound automatic candidates.
+
+positional arguments:
+  url
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+  --work WORK
+  --output OUTPUT
+  --resume

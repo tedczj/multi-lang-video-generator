@@ -1,0 +1,27 @@
+{
+  "automated_checks": "PASS",
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "frames": 10386,
+  "output_seconds": 646.8048333333334,
+  "added_english_chinese_gap_samples": 0,
+  "source_and_dub_pcm_preserved": true,
+  "max_frame_timestamp_error_samples": 0,
+  "video_end_error_samples": 0,
+  "max_thumbnail_mae": 1.736689805984497,
+  "aac_relative_rms_error": 0.036911796778440475,
+  "delivery_format": "MP4/H.264/yuv420p/AAC/faststart",
+  "motion_review_units": [
+    "u0010",
+    "u0017",
+    "u0020",
+    "u0021",
+    "u0055",
+    "u0068"
+  ],
+  "output_sha512": "8602d35bad1bf2a7e5bb5a6413cb119cf7bd4133130ac4f5ec61566c43a755193421a0ba0e282e31fb4bec003393a6a96c45ad7765193deb9cd9a41403280c98",
+  "human_listening": "REVIEW",
+  "formal_acceptance": "REVIEW"
+}

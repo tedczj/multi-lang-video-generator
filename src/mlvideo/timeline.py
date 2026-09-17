@@ -63,13 +63,13 @@ def plan(canonical, utterances):
         if type(n) is not int or n <= 0:
             raise ValueError("Dub must contain positive sample frames")
         added_samples = added(delay)
-        ds = u["end_sample"] + added_samples + sr
+        ds = u["end_sample"] + added_samples
         cut_time = time_at(cut) + (F(added_samples, sr) if native else F(delay) / fps)
-        hold = max(0, ceil((F(ds + n + sr, sr) - cut_time) * fps))
+        hold = max(0, ceil((F(ds + n, sr) - cut_time) * fps))
         # Absolute boundaries keep rounding errors bounded; never round segments independently.
         while (
             quantize(time_at(cut)) + added(delay + hold)
-            < ds + n + sr
+            < ds + n
         ):
             hold += 1
         if cut > cursor:
@@ -144,6 +144,7 @@ def plan(canonical, utterances):
         "dubs": dubs,
         "utterances": units,
         "quality_status": "REVIEW",
+        "audio_gap_policy": "immediate_en_zh_v1",
     }
     if native:
         output_pts = []
@@ -195,6 +196,8 @@ def verify(t):
             pts = t[key]
             if len(pts) != count + 1 or pts[0] < 0 or pts[-1] != end or any(b <= a for a, b in zip(pts, pts[1:])):
                 raise ValueError("Invalid original frame timestamps")
+    immediate = t.get("audio_gap_policy") == "immediate_en_zh_v1"
+    minimum_gap = 0 if immediate else 48000
     for i, (u, d) in enumerate(zip(t["utterances"], t["dubs"], strict=True)):
         following = (
             t["utterances"][i + 1]["output_start_sample"]
@@ -202,7 +205,8 @@ def verify(t):
             else t["output_samples"]
         )
         if (
-            d["start_sample"] - u["output_end_sample"] < 48000
-            or following - d["start_sample"] - d["samples"] < 48000
+            d["start_sample"] - u["output_end_sample"] < minimum_gap
+            or (immediate and d["start_sample"] != u["output_end_sample"])
+            or following - d["start_sample"] - d["samples"] < minimum_gap
         ):
             raise ValueError("Pre/post gap too short")

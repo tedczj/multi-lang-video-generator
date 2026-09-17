@@ -1,0 +1,26 @@
+{
+  "bytes": 106734911,
+  "faststart_verified": true,
+  "atoms": [
+    {
+      "type": "ftyp",
+      "offset": 0,
+      "size": 32
+    },
+    {
+      "type": "moov",
+      "offset": 32,
+      "size": 376838
+    },
+    {
+      "type": "free",
+      "offset": 376870,
+      "size": 8
+    },
+    {
+      "type": "mdat",
+      "offset": 376878,
+      "size": 106358033
+    }
+  ]
+}

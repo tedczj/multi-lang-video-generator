@@ -95,7 +95,7 @@ def test_real_dub_pcm_and_dynamic_overlay(tmp_path, footer):
     normalized.mkdir()
     normalize(source, probe(source, normalized), normalized)
     c = read_json(normalized / "canonical.json")
-    # Five seconds of source, full speech protected. One second pre + 0.5 dub + one second post.
+    # Five seconds of source followed immediately by a 0.5-second dub.
     t = plan(
         c,
         [
@@ -108,8 +108,8 @@ def test_real_dub_pcm_and_dynamic_overlay(tmp_path, footer):
             }
         ],
     )
-    assert t["output_frames"] == 188  # ceil(7.5 seconds * 25 fps)
-    assert t["dubs"][0]["start_sample"] == 288000
+    assert t["output_frames"] == 138  # ceil(5.5 seconds * 25 fps)
+    assert t["dubs"][0]["start_sample"] == 240000
     dub = tmp_path / "dub.wav"
     samples = array.array(
         "h", (v for i in range(24000) for v in (i % 701 - 350, 350 - i % 701))
@@ -137,16 +137,15 @@ def test_real_dub_pcm_and_dynamic_overlay(tmp_path, footer):
         overlay=overlay,
         output_height=48 + footer,
     )
-    assert seen == list(range(188))
+    assert seen == list(range(138))
     with wave.open(str(work / "master.wav")) as w:
         result = w.readframes(w.getnframes())
-        assert w.getnframes() == 360960
+        assert w.getnframes() == 264960
     with wave.open(str(normalized / "canonical.wav")) as w:
         original = w.readframes(w.getnframes())
     assert result[: 240000 * 4] == original
-    assert result[240000 * 4 : 288000 * 4] == bytes(48000 * 4)
-    assert result[288000 * 4 : 312000 * 4] == samples.tobytes()
-    assert result[312000 * 4 :] == bytes((360960 - 312000) * 4)
+    assert result[240000 * 4 : 264000 * 4] == samples.tobytes()
+    assert result[264000 * 4 :] == bytes((264960 - 264000) * 4)
     raw = subprocess.check_output(
         [
             "ffmpeg",
@@ -164,8 +163,8 @@ def test_real_dub_pcm_and_dynamic_overlay(tmp_path, footer):
         ]
     )
     size = 64 * (48 + footer) * 3
-    assert len(raw) == 188 * size
-    assert [raw[i * size] for i in range(188)] == list(range(188))
+    assert len(raw) == 138 * size
+    assert [raw[i * size] for i in range(138)] == list(range(138))
 
 
 def test_real_dub_rejects_wrong_sample_count(tmp_path):

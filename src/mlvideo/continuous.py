@@ -58,10 +58,11 @@ def plan(pts, groups, dub_samples):
         if type(n) is not int or n <= 0:
             raise ValueError("Invalid dub duration")
         duration = pts[b] - pts[a]
-        length = n + SR + duration + SR
+        end = group.get("speech_end_sample", pts[b])
+        if type(end) is not int or not pts[a] < end <= pts[b]:
+            raise ValueError("Speech end must lie inside its source group")
+        length = n + duration
         speed = F(duration, length)
-        if speed < F(2, 5):
-            raise ValueError("Video below 0.4x: regroup/review; no freeze fallback")
         unit = dict(
             group,
             source_start_sample=pts[a],
@@ -70,7 +71,9 @@ def plan(pts, groups, dub_samples):
             output_end_sample=output + length,
             dub_samples=n,
             english_start_sample=output,
-            chinese_start_sample=output + duration + SR,
+            speech_end_sample=end,
+            chinese_start_sample=output + end - pts[a],
+            chinese_end_sample=output + end - pts[a] + n,
             video_speed=str(speed),
         )
         units.append(unit)
@@ -92,35 +95,39 @@ def plan(pts, groups, dub_samples):
     if cursor != len(pts) - 1:
         raise ValueError("Uncovered source tail")
     return {
-        "schema": "ContinuousExperiment.v2",
+        "schema": "ContinuousExperiment.v3",
         "audio_order": "en-zh",
         "units": units,
         "continuous": continuous,
         "hold": hold,
         "output_samples": output,
         "quality_status": "REVIEW",
+        "motion_review_units": [
+            u.get("id", str(i))
+            for i, u in enumerate(units)
+            if F(u["video_speed"]) < F(2, 5)
+        ],
     }
 
 
 def mix(source, dubs, timeline):
     if (
-        timeline.get("schema") != "ContinuousExperiment.v2"
+        timeline.get("schema") != "ContinuousExperiment.v3"
         or timeline.get("audio_order") != "en-zh"
     ):
-        raise ValueError("Only English-first v2 timelines may generate new audio")
+        raise ValueError("Only English-first v3 timelines may generate new audio")
     if len(source) // 4 != timeline["units"][-1]["source_end_sample"]:
         raise ValueError("Source audio length differs from timeline")
     if len(dubs) != len(timeline["units"]):
         raise ValueError("Dub count differs from timeline")
     result = bytearray()
-    silence = bytes(SR * 4)
     for u, dub in zip(timeline["units"], dubs, strict=True):
         if len(dub) != u["dub_samples"] * 4:
             raise ValueError("Dub duration changed")
-        result.extend(source[u["source_start_sample"] * 4 : u["source_end_sample"] * 4])
-        result.extend(silence)
+        cut = u["speech_end_sample"] * 4
+        result.extend(source[u["source_start_sample"] * 4 : cut])
         result.extend(dub)
-        result.extend(silence)
+        result.extend(source[cut : u["source_end_sample"] * 4])
     if len(result) != timeline["output_samples"] * 4:
         raise ValueError("Output PCM length mismatch")
     return bytes(result)
@@ -147,6 +154,20 @@ def protect_speech(timeline, intervals):
 def layouts(pages, total, width, height, font_path):
     from PIL import Image, ImageDraw, ImageFont
 
+    if pages:
+        from fontTools.ttLib import TTFont
+
+        table = TTFont(str(font_path), fontNumber=0)
+        cmap = table.getBestCmap()
+        missing = {
+            c
+            for p in pages
+            for c in p["text"]
+            if not c.isspace() and ord(c) not in cmap
+        }
+        table.close()
+        if missing:
+            raise ValueError("Subtitle font lacks required glyphs")
     result, previous = [], 0
     for page in pages:
         a, b = page["start_frame"], page["end_frame"]
@@ -204,7 +225,11 @@ def render(source, audio, entries, overlays, destination, hold_frames):
     with (
         av.open(str(source)) as src,
         av.open(str(audio)) as sound,
-        av.open(str(destination), "w") as dst,
+        av.open(
+            str(destination),
+            "w",
+            options={"movflags": "+faststart"} if destination.suffix == ".mp4" else {},
+        ) as dst,
     ):
         stream = src.streams.video[0]
         video = dst.add_stream("libx264", rate=stream.average_rate)
@@ -263,15 +288,22 @@ def render(source, audio, entries, overlays, destination, hold_frames):
             pending = next(packets, None)
 
 
-def main():
+def produce(manifest_path, work, output):
+    import uuid
+
     import av
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    manifest = json.loads(args.manifest.read_text())
-    base = args.manifest.resolve().parent
+    manifest_path, work, output = (
+        Path(p).resolve() for p in (manifest_path, work, output)
+    )
+    if output.exists():
+        raise ValueError("Output exists; create a new version")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if shutil.disk_usage(output.parent).free < 2 * 1024**3 + 400 * 1024**2:
+        raise ValueError("Need 2 GiB reserve plus 400 MiB render budget")
+    work.mkdir(parents=True, exist_ok=False)
+    manifest = json.loads(manifest_path.read_text())
+    base = manifest_path.parent
     source, audio = (base / manifest[k] for k in ("source", "audio"))
     font = Path(manifest["font"])
     dubs = [pcm(base / g["dub"]) for g in manifest["groups"]]
@@ -283,92 +315,114 @@ def main():
         width, height = stream.width, stream.height
         if stream.sample_aspect_ratio not in (None, F(1)):
             raise ValueError("Prepare square-pixel display geometry first")
-        pts = [
-            quantize(frame.pts * frame.time_base) for frame in container.decode(video=0)
-        ]
+        pts = [quantize(f.pts * f.time_base) for f in container.decode(video=0)]
     pts.append(len(source_pcm) // 4)
-    timeline = plan(pts, manifest["groups"], [len(d) // 4 for d in dubs])
+    if "canonical" in manifest:
+        pts = json.loads((base / manifest["canonical"]).read_text())["frame_samples"]
+    groups = []
+    for group in manifest["groups"]:
+        ends = [
+            b
+            for a, b in manifest["speech_intervals"]
+            if pts[group["start_frame"]] <= a < b <= pts[group["end_frame"]]
+        ]
+        groups.append(
+            group
+            | {
+                "speech_end_sample": group.get(
+                    "speech_end_sample", max(ends) if ends else pts[group["end_frame"]]
+                )
+            }
+        )
+    timeline = plan(pts, groups, [len(d) // 4 for d in dubs])
     protect_speech(timeline, manifest["speech_intervals"])
     overlays = layouts(manifest["pages"], len(pts) - 1, width, height, font)
     for page in manifest["pages"]:
         if not (base / page["evidence"]).is_file():
             raise ValueError("Missing subtitle location evidence file")
-    for group in manifest["groups"]:
-        if not any(
-            p[0]["start_frame"] <= group["hold_frame"] < p[0]["end_frame"]
-            for p in overlays
-        ):
-            raise ValueError(
-                "Baseline hold must retain a measured English subtitle page"
-            )
-    if args.output.exists():
-        raise ValueError("Output exists; create a new version")
-    # This CLI is intentionally a short, bounded experiment, not a full-film renderer.
-    if timeline["output_samples"] > 120 * SR:
-        raise ValueError("Experiment limited to 120 output seconds")
-    if (
-        shutil.disk_usage(args.output.resolve().parent).free
-        < 2 * 1024**3 + 400 * 1024**2
-    ):
-        raise ValueError("Need 2 GiB reserve plus 400 MiB experiment budget")
-    args.output.mkdir()
     combined = mix(source_pcm, dubs, timeline)
-    wav_path = args.output / "combined.wav"
+    wav_path = work / "combined.wav"
     with wave.open(str(wav_path), "wb") as wav:
         wav.setparams((2, 2, SR, 0, "NONE", "not compressed"))
         wav.writeframes(combined)
-    for mode in ("continuous", "hold"):
-        render(
-            source,
-            wav_path,
-            timeline[mode],
-            overlays,
-            args.output / f"{mode}.mkv",
-            {g["hold_frame"] for g in manifest["groups"]},
-        )
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-nostdin",
-                "-v",
-                "error",
-                "-i",
-                str(args.output / f"{mode}.mkv"),
-                "-c:v",
-                "copy",
-                "-c:a",
-                "aac",
-                "-b:a",
-                "192k",
-                "-movflags",
-                "+faststart",
-                str(args.output / f"{mode}.mp4"),
-            ],
-            check=True,
-        )
-    timeline["source_frame_samples"] = pts
-    timeline["pages"] = [p for p, _ in overlays]
+    aac = work / "audio.m4a"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-nostdin",
+            "-v",
+            "error",
+            "-i",
+            str(wav_path),
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            str(aac),
+        ],
+        check=True,
+    )
+    partial = output.with_name(
+        "." + output.stem + "-" + uuid.uuid4().hex + ".partial.mp4"
+    )
+    render(source, aac, timeline["continuous"], overlays, partial, set())
+    # No second delivery video or MKV. Original source remains in the workspace.
+    timeline.pop("hold")
+    timeline.update(
+        manifest=str(manifest_path),
+        output=str(output),
+        dimensions=[width, height],
+        source_frame_samples=pts,
+        pages=[p for p, _ in overlays],
+        human_listening="REVIEW",
+        formal_acceptance="REVIEW",
+    )
     timeline["inputs"] = {
         str(p): sha512(p)
-        for p in [args.manifest, source, audio, font]
-        + [base / g["dub"] for g in manifest["groups"]]
+        for p in [manifest_path, source, audio, font]
+        + [base / g["dub"] for g in groups]
         + [base / p["evidence"] for p in manifest["pages"]]
     }
-    timeline["outputs"] = {
-        p.name: sha512(p) for p in args.output.iterdir() if p.is_file()
-    }
-    timeline["human_listening"] = timeline["formal_acceptance"] = "REVIEW"
-    (args.output / "timeline.json").write_text(
+    if "canonical" in manifest:
+        timeline["inputs"][str(base / manifest["canonical"])] = sha512(
+            base / manifest["canonical"]
+        )
+    timeline["outputs"] = {"combined.wav": sha512(wav_path), "audio.m4a": sha512(aac)}
+    timeline["output_sha512"] = sha512(partial)
+    (work / "timeline.json").write_text(
         json.dumps(timeline, ensure_ascii=False, indent=2) + "\n"
     )
+    from .continuous_verify import verify_delivery
+
+    report = verify_delivery(work, movie=partial)
+    (work / "checks.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n"
+    )
+    if output.exists():
+        raise ValueError("Output appeared during render; refusing replacement")
+    partial.rename(output)
+    return {
+        "output": str(output),
+        "work": str(work),
+        "seconds": len(combined) / 4 / SR,
+        "automated_checks": report["automated_checks"],
+        "human_listening": "REVIEW",
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument(
+        "--output", type=Path, required=True, help="New delivery directory"
+    )
+    args = parser.parse_args()
+    if args.output.exists():
+        parser.error("Output directory exists; create a new version")
     print(
         json.dumps(
-            {
-                "output": str(args.output),
-                "seconds": len(combined) / 4 / SR,
-                "video_speeds": [u["video_speed"] for u in timeline["units"]],
-            },
-            indent=2,
+            produce(args.manifest, args.output / "work", args.output / "output.mp4"),
+            ensure_ascii=False,
         )
     )
 

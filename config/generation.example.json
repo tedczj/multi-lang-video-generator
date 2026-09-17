@@ -1,0 +1,71 @@
+{
+  "generation_work_root": "./data/generation",
+  "generation_output_root": "./output",
+  "models": {
+    "N06/captions": [
+      {
+        "endpoint": "http://127.0.0.1:58081/ocr",
+        "model_id": "PaddleOCR",
+        "request_options": {
+          "textDetLimitSideLen": 1280,
+          "textDetLimitType": "max",
+          "textDetUnclipRatio": 1.1
+        },
+        "revision": null,
+        "unknown_reason": "Local API does not attest model revision"
+      }
+    ],
+    "N07/whisper": [
+      {
+        "model_path": "/absolute/path/to/cosyvoice-runtime/whisper/small.pt",
+        "python": "/absolute/path/to/cosyvoice-runtime/cosy-env/bin/python",
+        "sha512": "4b6ffd586a0da54fcdf293cea87c60d7240847ad1b6a4723a4e0e31f248c770262d790d9147ae00a6628240a1bf1851883bde1e8d54c13e427f6e75c21df318a",
+        "vad_package_dir": "/absolute/path/to/cosyvoice-runtime/speech-deps",
+        "vad_sha512": "27ce3800afa119ce3b3c6fef2c372cb83d86813376918c10d261a58011f683a0e1a05deef0e530e311107df82e1d0b7bd5c99e6f34060eb17c44a91433258dea"
+      }
+    ],
+    "N07/speaker_diarization": [
+      {
+        "embedding_path": "/absolute/path/to/speaker-runtime/embedding.onnx",
+        "embedding_sha512": "babc924c6fb648327b35a32c233f850a0049e473adf6d1963122e4c03d5d660c477dd53c83957a2cb88790b04410c8744baf9c0a0ace96ff945193288fa55e6a",
+        "model_id": "sherpa-onnx pyannote-segmentation-3.0 + 3D-Speaker CAMPPlus English VoxCeleb",
+        "package_version": "1.13.8",
+        "python": "/absolute/path/to/speaker-runtime/env/bin/python",
+        "segmentation_path": "/absolute/path/to/speaker-runtime/sherpa-onnx-pyannote-segmentation-3-0/model.onnx",
+        "segmentation_sha512": "4701a86a85f4d52314333288829cd5e9aaa83f6b211394e53191a75f46a76844c84d32c149f8dc952f573d9c22944f5e1ef3446826d2ea30e1e1449494a70eb5"
+      }
+    ],
+    "N09/codex": [
+      {
+        "effort": "medium",
+        "executable": "codex",
+        "model_id": "gpt-5.6-terra"
+      }
+    ],
+    "N11/cosyvoice3_zero_shot": [
+      {
+        "model_dir": "/absolute/path/to/cosyvoice-runtime/Fun-CosyVoice3-0.5B-2512",
+        "model_id": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+        "python": "/absolute/path/to/cosyvoice-runtime/cosy-env/bin/python",
+        "revision": "29e01c4e8d000f4bcd70751be16fa94bf3d85a18",
+        "source_dir": "/absolute/path/to/cosyvoice-runtime/CosyVoice"
+      }
+    ],
+    "N12/audio_qa_asr": [
+      {
+        "model_path": "/absolute/path/to/cosyvoice-runtime/whisper/small.pt",
+        "python": "/absolute/path/to/cosyvoice-runtime/cosy-env/bin/python",
+        "sha512": "4b6ffd586a0da54fcdf293cea87c60d7240847ad1b6a4723a4e0e31f248c770262d790d9147ae00a6628240a1bf1851883bde1e8d54c13e427f6e75c21df318a",
+        "vad_package_dir": "/absolute/path/to/cosyvoice-runtime/speech-deps",
+        "vad_sha512": "27ce3800afa119ce3b3c6fef2c372cb83d86813376918c10d261a58011f683a0e1a05deef0e530e311107df82e1d0b7bd5c99e6f34060eb17c44a91433258dea"
+      }
+    ],
+    "N17/bilingual": [
+      {
+        "font_path": "/System/Library/Fonts/STHeiti Medium.ttc",
+        "sha512": "2edf0a3583897b5c1be64c4bb88e4c8970c84464aa76af3265fb63c928abf0c696b7297ccdb28750d74d3feb4b2b4fb30729afc68ef78ef8c8bc3f947357eb7a",
+        "source": "macOS system STHeiti Medium; local baseline, redistribution rights not asserted"
+      }
+    ]
+  }
+}

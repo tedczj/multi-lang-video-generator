@@ -5,13 +5,12 @@ import wave
 
 import pytest
 
-from mlvideo.continuous import mix, plan, render
-from mlvideo.continuous_verify import verify
-from mlvideo.util import sha512
+from mlvideo.continuous import produce
+from mlvideo.continuous_verify import verify_delivery
 
 
-def test_render_decode_and_tamper(tmp_path):
-    pytest.importorskip("numpy")
+def test_render_decode_immediate_audio_single_mp4_and_tamper(tmp_path):
+    np = pytest.importorskip("numpy")
     if not shutil.which("ffmpeg"):
         pytest.skip("ffmpeg required")
     source = tmp_path / "source.mkv"
@@ -32,62 +31,48 @@ def test_render_decode_and_tamper(tmp_path):
         ],
         check=True,
     )
-    source_pcm = b"\x01\x02\x03\x04" * 288000
-    dub = b"\x05\x06\x07\x08" * 48000
-    groups = [{"start_frame": 0, "end_frame": 60, "hold_frame": 59, "dub": "dub.wav"}]
-    t = plan(list(range(0, 288001, 4800)), groups, [48000])
-    for name, data in [
-        ("source.wav", source_pcm),
-        ("dub.wav", dub),
-        ("combined.wav", mix(source_pcm, [dub], t)),
-    ]:
+    for name, n, hz in [("source.wav", 288000, 440), ("dub.wav", 48000, 660)]:
+        mono = (np.sin(np.arange(n) * hz * 2 * np.pi / 48000) * 10000).astype("<i2")
+        data = np.column_stack([mono, mono]).tobytes()
         with wave.open(str(tmp_path / name), "wb") as w:
             w.setparams((2, 2, 48000, 0, "NONE", ""))
             w.writeframes(data)
+    font = tmp_path / "unused-font"
+    font.write_text("no subtitle pages in this codec fixture")
     manifest = tmp_path / "manifest.json"
     manifest.write_text(
-        json.dumps({"source": "source.mkv", "audio": "source.wav", "groups": groups})
+        json.dumps(
+            {
+                "source": "source.mkv",
+                "audio": "source.wav",
+                "font": str(font),
+                "groups": [
+                    {
+                        "start_frame": 0,
+                        "end_frame": 60,
+                        "hold_frame": 59,
+                        "speech_end_sample": 240000,
+                        "dub": "dub.wav",
+                    }
+                ],
+                "speech_intervals": [[1000, 240000]],
+                "pages": [],
+            }
+        )
     )
-    for mode in ("continuous", "hold"):
-        render(
-            source,
-            tmp_path / "combined.wav",
-            t[mode],
-            [],
-            tmp_path / f"{mode}.mkv",
-            {59},
-        )
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-v",
-                "error",
-                "-i",
-                str(tmp_path / f"{mode}.mkv"),
-                "-c:v",
-                "copy",
-                "-c:a",
-                "aac",
-                str(tmp_path / f"{mode}.mp4"),
-            ],
-            check=True,
-        )
-    t["inputs"] = {
-        str(p): sha512(p)
-        for p in [manifest, source, tmp_path / "source.wav", tmp_path / "dub.wav"]
-    }
-    t["outputs"] = {
-        p.name: sha512(p)
-        for p in tmp_path.iterdir()
-        if p.suffix in (".mkv", ".mp4", ".wav")
-    }
-    (tmp_path / "timeline.json").write_text(json.dumps(t))
-    result = verify(tmp_path)
-    assert result["variants"]["continuous"]["frames"] == 60
-    assert result["variants"]["hold"]["frames"] == 150
-    assert result["output_seconds"] == 9
-    assert result["human_listening"] == "REVIEW"
-    with (tmp_path / "continuous.mkv").open("ab") as f:
+    out = tmp_path / "delivery/output.mp4"
+    work = tmp_path / "work"
+    result = produce(manifest, work, out)
+    assert result["seconds"] == 7
+    assert sorted(x.name for x in out.parent.iterdir()) == ["output.mp4"]
+    assert not list(work.glob("*.mkv"))
+    report = verify_delivery(work)
+    assert report["frames"] == 60
+    assert report["added_english_chinese_gap_samples"] == 0
+    assert report["human_listening"] == "REVIEW"
+    with pytest.raises(ValueError, match="exists"):
+        produce(manifest, tmp_path / "new-work", out)
+    with out.open("ab") as f:
         f.write(b"changed")
     with pytest.raises(ValueError, match="Output changed"):
-        verify(tmp_path)
+        verify_delivery(work)

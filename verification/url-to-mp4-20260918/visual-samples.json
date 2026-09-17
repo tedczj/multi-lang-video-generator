@@ -1,0 +1,38 @@
+{
+  "opening": {
+    "source_frame": 0,
+    "output_seconds": 0.0
+  },
+  "title": {
+    "source_frame": 388,
+    "output_seconds": 15.3931875
+  },
+  "narration": {
+    "source_frame": 821,
+    "output_seconds": 34.791
+  },
+  "long-caption": {
+    "source_frame": 4715,
+    "output_seconds": 284.9944375
+  },
+  "dialogue": {
+    "source_frame": 2198,
+    "output_seconds": 115.87710416666667
+  },
+  "tall-monkey": {
+    "source_frame": 9098,
+    "output_seconds": 572.6678125
+  },
+  "short-monkey": {
+    "source_frame": 9233,
+    "output_seconds": 581.245875
+  },
+  "last-caption": {
+    "source_frame": 9988,
+    "output_seconds": 629.9404583333334
+  },
+  "ending": {
+    "source_frame": 10385,
+    "output_seconds": 646.7391041666667
+  }
+}

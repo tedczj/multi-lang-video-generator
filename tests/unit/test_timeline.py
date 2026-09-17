@@ -17,9 +17,9 @@ def canonical(fps="25", total=125):
     "end,cut,total,expected",
     [
         (48000, 125, 125, 0),
-        (48000, 50, 50, 38),
-        (48000, 25, 25, 63),
-        (48000, 75, 75, 13),
+        (48000, 50, 50, 0),
+        (48000, 25, 25, 13),
+        (48000, 75, 75, 0),
     ],
 )
 def test_independent_hold_counts(end, cut, total, expected):
@@ -36,7 +36,7 @@ def test_independent_hold_counts(end, cut, total, expected):
         ],
     )
     assert t["utterances"][0]["hold_frames"] == expected
-    assert t["dubs"][0]["start_sample"] == 96000
+    assert t["dubs"][0]["start_sample"] == 48000
 
 
 def test_reject_unsafe_overlap_duplicate():
@@ -79,12 +79,12 @@ def test_rational_quantization():
             h = t["output_frames"] - total
             assert (
                 t["output_samples"]
-                >= t["dubs"][0]["start_sample"] + t["dubs"][0]["samples"] + 48000
+                >= t["dubs"][0]["start_sample"] + t["dubs"][0]["samples"]
             )
             if h:
                 assert (
                     quantize(F(total + h - 1) / F(fps))
-                    < t["dubs"][0]["start_sample"] + t["dubs"][0]["samples"] + 48000
+                    < t["dubs"][0]["start_sample"] + t["dubs"][0]["samples"]
                 )
 
 
@@ -116,3 +116,23 @@ def test_fractional_hold_long_tail_preserves_every_source_sample():
                     F(p["source_end_frame"] * 48000 * 1001, 30000) + F(1, 2)
                 ) - int(F(p["source_start_frame"] * 48000 * 1001, 30000) + F(1, 2))
                 assert p["output_end_sample"] - p["output_start_sample"] == expected
+
+
+def test_immediate_policy_rejects_even_one_added_sample():
+    from mlvideo.timeline import verify
+
+    t = plan(
+        canonical(),
+        [
+            {
+                "id": "u",
+                "start_sample": 0,
+                "end_sample": 48000,
+                "safe_cut_frame": 125,
+                "dub_samples": 24000,
+            }
+        ],
+    )
+    t["dubs"][0]["start_sample"] += 1
+    with pytest.raises(ValueError):
+        verify(t)

@@ -1,0 +1,22 @@
+download cached
+canonical cached
+speech cached
+speakers cached
+ocr cached
+refine-asr cached
+script cached
+references cached
+tts cached
+check-zh cached
+join cached
+pages-v2 running
+pages-v2 done
+render-237757fa773aa850 running
+render-237757fa773aa850 done
+{
+  "output": "/Volumes/备份/视频成片_请勿清理/西游记_整集_英中紧接_20260918_v2.mp4",
+  "work": "/Volumes/备份/视频生成工作数据_请勿清理/jttw-20260917/render_006cc27658274c8b9522c87d2957a05e",
+  "seconds": 646.8048333333334,
+  "automated_checks": "PASS",
+  "human_listening": "REVIEW"
+}
